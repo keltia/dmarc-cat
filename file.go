@@ -1,12 +1,12 @@
 package main
 
 import (
+	"archive/zip"
+	"io"
+	"log"
 	"os"
 	"path"
-	"archive/zip"
-	"log"
 	"path/filepath"
-	"io"
 )
 
 // openFile looks at the file and give it to openZipfile() if needed
@@ -88,7 +88,6 @@ func openZipfile(tempdir, file string) (fname string) {
 	return
 }
 
-
 // handleSingleFile creates a tempdir and dispatch csv/zip files to handler.
 func handleSingleFile(tempdir string, file string) (err error) {
 	var myfile string
@@ -109,4 +108,3 @@ func handleSingleFile(tempdir string, file string) (err error) {
 	debug("report=%v\n", report)
 	return
 }
-

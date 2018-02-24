@@ -13,7 +13,7 @@ type ReportMetadata struct {
 	OrgName          string    `xml:"org_name"`
 	Email            string    `xml:"email"`
 	ExtraContactInfo string    `xml:"extra_contact_info"`
-	ReportID         string     `xml:"report_id"`
+	ReportID         string    `xml:"report_id"`
 	Date             DateRange `xml:"date_range"`
 }
 
@@ -63,4 +63,3 @@ type Feedback struct {
 	Policy   PolicyPublished `xml:"policy_published"`
 	Records  []Record        `xml:"record"`
 }
-

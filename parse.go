@@ -1,9 +1,9 @@
 package main
 
 import (
-	"io/ioutil"
-	"fmt"
 	"encoding/xml"
+	"fmt"
+	"io/ioutil"
 )
 
 func parseXML(file string) (Feedback, error) {

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"os"
-	"log"
 	"flag"
 	"io/ioutil"
+	"log"
+	"os"
 )
 
 var (
@@ -16,7 +16,7 @@ var (
 	fDebug   bool
 	fVerbose bool
 
-	tempdir  string
+	tempdir string
 )
 
 func init() {
@@ -41,7 +41,6 @@ func createSandbox(tag string) (path string) {
 	}
 	return dir
 }
-
 
 func main() {
 	flag.Parse()
