@@ -48,8 +48,8 @@ type Result struct {
 }
 
 type AuthResults struct {
-	DKIM Result `xml:"dkim"`
-	SPF  Result `xml:"spf"`
+	DKIM Result `xml:"dkim,omitempty"`
+	SPF  Result `xml:"spf,omitempty"`
 }
 
 type Record struct {
