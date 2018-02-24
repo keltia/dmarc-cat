@@ -13,13 +13,36 @@ As with many Go utilities, a simple
 
 is enough to fetch, build and install.
 
+## Dependencies
+
+Aside from the standard library, I use `github.com/intel/tfortools` to generate tables.
+
+    go get -u github.com/intel/tfortools
+
 ## Usage
 
 SYNOPSIS
 ```
-darc-cat -hvD <zipfile>
+darc-cat -hvD <zipfile|xmlfile>
 
+Example:
+
+$ dmarc-cat /tmp/yahoo.com\!keltia.net\!1518912000\!1518998399.xml
+
+Reporting by: Yahoo! Inc. — postmaster@dmarc.yahoo.com
+From 2018-02-18 01:00:00 +0100 CET to 2018-02-19 00:59:59 +0100 CET
+
+Domain: keltia.net
+Policy: p=none; dkim=r; spf=r
+
+Reports(1):
+IP            Count   From       RFrom      RDKIM   RSPF
+88.191.250.24 1       keltia.net keltia.net neutral pass
 ```
+
+## Tests
+
+Very incomplete for now.
 
 ## License
 
