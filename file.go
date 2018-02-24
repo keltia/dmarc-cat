@@ -2,6 +2,7 @@ package main
 
 import (
 	"archive/zip"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -104,7 +105,11 @@ func handleSingleFile(tempdir string, file string) (err error) {
 	}
 
 	report, err := parseXML(myfile)
-
 	debug("report=%v\n", report)
+
+	output, err := Analyze(report)
+
+	fmt.Println(output)
+
 	return
 }
