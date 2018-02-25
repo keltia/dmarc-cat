@@ -11,7 +11,7 @@ var (
 	// MyName is the application
 	MyName = "dmarc-cat"
 	// MyVersion is our version
-	MyVersion = "0.0.1"
+	MyVersion = "0.1.0"
 
 	fDebug   bool
 	fVerbose bool
