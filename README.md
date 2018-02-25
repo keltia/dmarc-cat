@@ -46,7 +46,7 @@ Very incomplete for now.
 
 ## License
 
-The [BSD 2-Clause license][bsd].
+This is released under the BSD 2-Clause license.  See `LICENSE.md`.
 
 ## Contributing
 
