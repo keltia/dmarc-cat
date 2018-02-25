@@ -53,7 +53,8 @@ The [BSD 2-Clause license][bsd].
 I use Git Flow for this package so please use something similar or the usual github workflow.
 
 1. Fork it ( https://github.com/keltia/dmarc-cat/fork )
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+2. Checkout the develop branch (`git checkout develop`)
+3. Create your feature branch (`git checkout -b my-new-feature`)
+4. Commit your changes (`git commit -am 'Add some feature'`)
+5. Push to the branch (`git push origin my-new-feature`)
+6. Create a new Pull Request
