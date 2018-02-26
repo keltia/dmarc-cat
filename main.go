@@ -5,11 +5,12 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 var (
 	// MyName is the application
-	MyName = "dmarc-cat"
+	MyName = filepath.Base(os.Args[0])
 	// MyVersion is our version
 	MyVersion = "0.2.0"
 	// Author should be abvious
