@@ -10,7 +10,8 @@ import (
 )
 
 const (
-	reportTmpl = `
+	reportTmpl = `{{.MyName}} {{.MyVersion}} by {{.Author}}
+
 Reporting by: {{.Org}} — {{.Email}}
 From {{.DateBegin}} to {{.DateEnd}}
 
@@ -24,6 +25,9 @@ Reports({{.Count}}):
 )
 
 type headVars struct {
+	MyName      string
+	MyVersion   string
+	Author      string
 	Org         string
 	Email       string
 	DateBegin   string
@@ -49,6 +53,9 @@ func Analyze(r Feedback) (string, error) {
 	var buf bytes.Buffer
 
 	tmplvars := &headVars{
+		MyName:      MyName,
+		MyVersion:   MyVersion,
+		Author:      Author,
 		Org:         r.Metadata.OrgName,
 		Email:       r.Metadata.Email,
 		DateBegin:   time.Unix(r.Metadata.Date.Begin, 0).String(),
