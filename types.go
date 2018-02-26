@@ -43,7 +43,7 @@ type Row struct {
 	Policy   PolicyEvaluated `xml:"policy_evaluated"`
 }
 
-// HeaderFrom header
+// Identifiers headers checked
 type Identifiers struct {
 	HeaderFrom string `xml:"header_from"`
 }
