@@ -49,6 +49,7 @@ type row struct {
 	RSPF  string
 }
 
+// Analyze extract and display what we want
 func Analyze(r Feedback) (string, error) {
 	var buf bytes.Buffer
 
