@@ -93,7 +93,10 @@ func Analyze(r Feedback) (string, error) {
 		log.Printf("error in template 'r': %v", err)
 	}
 
-	tfortools.OutputToTemplate(&buf, "reports", rowTmpl, rows, nil)
+	err = tfortools.OutputToTemplate(&buf, "reports", rowTmpl, rows, nil)
+	if err != nil {
+		log.Printf("error in template 'reports': %v", err)
+	}
 
 	return buf.String(), err
 }
