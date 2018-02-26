@@ -10,3 +10,5 @@ branches:
   only:
   - master
   - develop
+install:
+  - go get github.com/intel/tfortools
