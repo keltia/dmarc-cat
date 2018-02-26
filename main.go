@@ -12,6 +12,8 @@ var (
 	MyName = "dmarc-cat"
 	// MyVersion is our version
 	MyVersion = "0.1.0"
+	// Author should be abvious
+	Author = "Ollivier Robert"
 
 	fDebug   bool
 	fVerbose bool
