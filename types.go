@@ -4,11 +4,13 @@ import (
 	"net"
 )
 
+// DateRange time period
 type DateRange struct {
 	Begin int64 `xml:"begin"`
 	End   int64 `xml:"end"`
 }
 
+// ReportMetadata for the report
 type ReportMetadata struct {
 	OrgName          string    `xml:"org_name"`
 	Email            string    `xml:"email"`
@@ -17,6 +19,7 @@ type ReportMetadata struct {
 	Date             DateRange `xml:"date_range"`
 }
 
+// PolicyPublished found in DNS
 type PolicyPublished struct {
 	Domain string `xml:"domain"`
 	ADKIM  string `xml:"adkim"`
@@ -26,38 +29,45 @@ type PolicyPublished struct {
 	Pct    int    `xml:"pct"`
 }
 
+// PolicyEvaluated what was evaluated
 type PolicyEvaluated struct {
 	Disposition string `xml:"disposition"`
 	DKIM        string `xml:"dkim"`
 	SPF         string `xml:"spf"`
 }
 
+// Row for each IP address
 type Row struct {
 	SourceIP net.IP          `xml:"source_ip"`
 	Count    int             `xml:"count"`
 	Policy   PolicyEvaluated `xml:"policy_evaluated"`
 }
 
+// Identifiers headers checked
 type Identifiers struct {
 	HeaderFrom string `xml:"header_from"`
 }
 
+// Result for each IP
 type Result struct {
 	Domain string `xml:"domain"`
 	Result string `xml:"result"`
 }
 
+// AuthResults for DKIM/SPF
 type AuthResults struct {
 	DKIM Result `xml:"dkim,omitempty"`
 	SPF  Result `xml:"spf,omitempty"`
 }
 
+// Record for each IP
 type Record struct {
 	Row         Row         `xml:"row"`
 	Identifiers Identifiers `xml:"identifiers"`
 	AuthResults AuthResults `xml:"auth_results"`
 }
 
+// Feedback the report itself
 type Feedback struct {
 	Metadata ReportMetadata  `xml:"report_metadata"`
 	Policy   PolicyPublished `xml:"policy_published"`
