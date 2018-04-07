@@ -56,8 +56,9 @@ func main() {
 	}
 
 	tempdir = createSandbox(MyName)
+	defer cleanupTemp(tempdir)
+
 	if err := handleSingleFile(tempdir, flag.Arg(0)); err != nil {
 		log.Printf("error parsing %s: %v", flag.Arg(0), err)
 	}
-	cleanupTemp(tempdir)
 }
