@@ -105,6 +105,10 @@ func handleSingleFile(tempdir string, file string) (err error) {
 	}
 
 	report, err := parseXML(myfile)
+	if err != nil {
+		log.Fatalf("error parsing XML: %v", err)
+	}
+
 	debug("report=%v\n", report)
 
 	output, err := Analyze(report)
