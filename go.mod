@@ -1,3 +1,3 @@
-module "github.com/keltia/dmarc-cat"
+module github.com/keltia/dmarc-cat
 
-require "github.com/intel/tfortools" v0.2.0
+require github.com/intel/tfortools v0.2.0

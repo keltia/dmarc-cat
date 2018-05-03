@@ -5,11 +5,12 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 var (
 	// MyName is the application
-	MyName = "dmarc-cat"
+	MyName = filepath.Base(os.Args[0])
 	// MyVersion is our version
 	MyVersion = "0.2.1"
 	// Author should be abvious
@@ -56,8 +57,9 @@ func main() {
 	}
 
 	tempdir = createSandbox(MyName)
+	defer cleanupTemp(tempdir)
+
 	if err := handleSingleFile(tempdir, flag.Arg(0)); err != nil {
 		log.Printf("error parsing %s: %v", flag.Arg(0), err)
 	}
-	cleanupTemp(tempdir)
 }
