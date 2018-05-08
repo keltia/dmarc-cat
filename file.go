@@ -2,12 +2,16 @@ package main
 
 import (
 	"archive/zip"
+	"bytes"
+	"compress/gzip"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 )
 
 // openFile looks at the file and give it to openZipfile() if needed
@@ -27,6 +31,11 @@ func openFile(tempdir, file string) (fn string, err error) {
 		verbose("found zip file %s", myfile)
 
 		myfile = openZipfile(tempdir, myfile)
+	} else if path.Ext(myfile) == ".gz" ||
+		path.Ext(myfile) == ".GZ" {
+		verbose("found gzip file %s", myfile)
+
+		myfile = openGzipFile(tempdir, myfile)
 	}
 	fn = myfile
 	return
@@ -57,6 +66,48 @@ func extractXML(tempdir string, fn *zip.File) (file string) {
 		log.Fatalf("unable to write %s in %s: %v", fn.Name, tempdir, err)
 	}
 	file = filepath.Join(tempdir, fn.Name)
+	return
+}
+
+// openGzipfile uncompress the file and store it into a .csv file in sandbox
+func openGzipFile(tempdir, file string) (fname string) {
+
+	// Go on
+	if err := os.Chdir(tempdir); err != nil {
+		log.Fatalf("unable to use tempdir %s: %v", tempdir, err)
+	}
+
+	buf, err := ioutil.ReadFile(file)
+	bufr := bytes.NewBuffer(buf)
+	zfh, err := gzip.NewReader(bufr)
+	if err != nil {
+		log.Fatalf("error opening %s: %v", file, err)
+	}
+	defer zfh.Close()
+
+	verbose("exploring %s", file)
+
+	file = filepath.Base(file)
+
+	cmps := strings.Split(file, ".")
+	if cmps == nil {
+		log.Fatalf("error, file not csv: %s", file)
+	}
+
+	file = strings.Join(cmps[0:len(cmps)-1], ".")
+	// Create our temp file
+	ours, err := os.Create(filepath.Join(tempdir, file))
+	if err != nil {
+		log.Fatalf("unable to create %s in %s: %v", file, tempdir, err)
+	}
+	defer ours.Close()
+
+	verbose("created our tempfile %s", filepath.Join(tempdir, file))
+
+	// copy all the bits over
+	_, err = io.Copy(ours, zfh)
+
+	fname = file
 	return
 }
 
