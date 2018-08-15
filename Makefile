@@ -3,7 +3,8 @@
 # Copyright 2018 © by Ollivier Robert
 #
 
-GOBIN=   ${GOPATH}/bin
+GO=		go
+GOBIN=  ${GOPATH}/bin
 
 BIN=	dmarc-cat
 
@@ -14,19 +15,19 @@ OPTS=	-ldflags="-s -w" -v
 all: ${BIN}
 
 ${BIN}: ${SRCS}
-	go build -o ${BIN} ${OPTS} .
+	${GO} build -o ${BIN} ${OPTS} .
 
 test:
-	go test -v .
+	${GO} test -v .
 
 lint:
 	gometalinter
 
 install: ${BIN}
-	go install ${OPTS} .
+	${GO} install ${OPTS} .
 
 clean:
-	go clean -v
+	${GO} clean -v
 
 push:
 	git push --all
