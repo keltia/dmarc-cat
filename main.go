@@ -2,10 +2,12 @@ package main
 
 import (
 	"flag"
-	"io/ioutil"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/keltia/sandbox"
 )
 
 var (
@@ -27,24 +29,6 @@ func init() {
 	flag.BoolVar(&fVerbose, "v", false, "Verbose mode")
 }
 
-// cleanupTemp removes the temporary directory
-func cleanupTemp(dir string) {
-	err := os.RemoveAll(dir)
-	if err != nil {
-		log.Printf("cleanup failed for %s: %v", dir, err)
-	}
-}
-
-// createSandbox creates our our directory with TEMPDIR (wherever it is)
-func createSandbox(tag string) (path string) {
-	// Extract in safe location
-	dir, err := ioutil.TempDir("", tag)
-	if err != nil {
-		log.Fatalf("unable to create sandbox %s: %v", dir, err)
-	}
-	return dir
-}
-
 func main() {
 	flag.Parse()
 
@@ -56,10 +40,24 @@ func main() {
 		log.Fatalln("You must specify at least one file.")
 	}
 
-	tempdir = createSandbox(MyName)
-	defer cleanupTemp(tempdir)
+	snd, err := sandbox.New(MyName)
+	if err != nil {
+		log.Fatalf("Fatal: Can not create sandbox: %v", err)
+	}
+	defer snd.Cleanup()
 
-	if err := handleSingleFile(tempdir, flag.Arg(0)); err != nil {
-		log.Printf("error parsing %s: %v", flag.Arg(0), err)
+	file := flag.Arg(0)
+	err = snd.Run(func() error {
+		var err error
+
+		if text, err := HandleSingleFile(snd.Cwd(), file); err != nil {
+			log.Printf("error parsing %s: %v", file, err)
+		} else {
+			fmt.Println(text)
+		}
+		return err
+	})
+	if err != nil {
+		log.Printf("error handling %s: %v", file, err)
 	}
 }
