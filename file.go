@@ -11,11 +11,26 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
+
+	"github.com/keltia/sandbox"
+	"github.com/pkg/errors"
 )
 
-// openFile looks at the file and give it to openZipfile() if needed
-func openFile(tempdir, file string) (fn string, err error) {
+const (
+	reFileName = `^([\w\.]+)!([\w\.]+)!([\d]+)!([\d]+)\.(xml\.gz|zip)$`
+)
+
+func checkFilename(file string) (ok bool) {
+	base := filepath.Base(file)
+	re := regexp.MustCompile(reFileName)
+
+	return re.MatchString(base)
+}
+
+// OpenFile looks at the file and give it to openZipfile() if needed
+func OpenFile(tempdir, file string) (r io.ReadCloser, err error) {
 	var myfile string
 
 	if _, err = os.Stat(file); err != nil {
