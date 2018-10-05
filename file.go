@@ -50,14 +50,13 @@ func OpenFile(tempdir, file string) (r io.ReadCloser, err error) {
 		path.Ext(myfile) == ".GZ" {
 		verbose("found gzip file %s", myfile)
 
-		myfile = openGzipFile(tempdir, myfile)
+		myfile = OpenGzipFile(tempdir, myfile)
 	}
-	fn = myfile
-	return
+	return os.Open(myfile)
 }
 
-// extractXML reads the first xml in the zip file and copy into a temp file
-func extractXML(tempdir string, fn *zip.File) (file string) {
+// ExtractXML reads the first xml in the zip file and copy into a temp file
+func ExtractXML(tempdir string, fn *zip.File) (file string) {
 	verbose("found %s", fn.Name)
 
 	// Open the stream
@@ -85,12 +84,7 @@ func extractXML(tempdir string, fn *zip.File) (file string) {
 }
 
 // openGzipfile uncompress the file and store it into a .csv file in sandbox
-func openGzipFile(tempdir, file string) (fname string) {
-
-	// Go on
-	if err := os.Chdir(tempdir); err != nil {
-		log.Fatalf("unable to use tempdir %s: %v", tempdir, err)
-	}
+func OpenGzipFile(tempdir, file string) (fname string) {
 
 	buf, err := ioutil.ReadFile(file)
 	bufr := bytes.NewBuffer(buf)
@@ -128,7 +122,6 @@ func openGzipFile(tempdir, file string) (fname string) {
 
 // openZipfile extracts the first XML file out of he given zip.
 func openZipfile(tempdir, file string) (fname string) {
-
 	// Go on
 	if err := os.Chdir(tempdir); err != nil {
 		log.Fatalf("unable to use tempdir %s: %v", tempdir, err)
@@ -147,7 +140,7 @@ func openZipfile(tempdir, file string) (fname string) {
 
 		if path.Ext(fn.Name) == ".xml" ||
 			path.Ext(fn.Name) == ".XML" {
-			file = extractXML(tempdir, fn)
+			file = ExtractXML(tempdir, fn)
 			break
 		}
 	}
@@ -155,9 +148,14 @@ func openZipfile(tempdir, file string) (fname string) {
 	return
 }
 
-// handleSingleFile creates a tempdir and dispatch csv/zip files to handler.
-func handleSingleFile(tempdir string, file string) (err error) {
+// HandleSingleFile creates a tempdir and dispatch csv/zip files to handler.
+func HandleSingleFile(snd *sandbox.Dir, file string) (string, error) {
 	var myfile string
+
+	debug("file=%s", file)
+	if !checkFilename(file) {
+		return "", fmt.Errorf("bad filename")
+	}
 
 	// We want the full path
 	myfile, err := filepath.Abs(file)
@@ -179,7 +177,9 @@ func handleSingleFile(tempdir string, file string) (err error) {
 		return err
 	})
 
-	report, err := parseXML(myfile)
+	debug("fh=%#v", fh)
+	verbose("Analyzing %s", myfile)
+	report, err := ParseXML(fh)
 	if err != nil {
 		return "", errors.Wrap(err, "error parsing XML")
 	}
@@ -187,8 +187,9 @@ func handleSingleFile(tempdir string, file string) (err error) {
 	debug("report=%v\n", report)
 
 	output, err := Analyze(report)
+	if err != nil {
+		log.Printf("error: %v", err)
+	}
 
-	fmt.Println(output)
-
-	return
+	return output, nil
 }
