@@ -1,6 +1,6 @@
 language: go
 go:
-- "1.10.x"
+- "1.11.x"
 - master
 matrix:
   allow_failures:
@@ -10,5 +10,8 @@ branches:
   only:
   - master
   - develop
-install:
-  - env GO111MODULE=on go get github.com/intel/tfortools
+env:
+  - GO111MODULE=on
+script:
+  - make
+  - make test
