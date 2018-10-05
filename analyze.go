@@ -2,11 +2,12 @@ package main
 
 import (
 	"bytes"
-	"github.com/intel/tfortools"
-	"log"
 	"net"
 	"text/template"
 	"time"
+
+	"github.com/intel/tfortools"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -90,12 +91,12 @@ func Analyze(r Feedback) (string, error) {
 	t := template.Must(template.New("r").Parse(string(reportTmpl)))
 	err := t.ExecuteTemplate(&buf, "r", tmplvars)
 	if err != nil {
-		log.Printf("error in template 'r': %v", err)
+		return "", errors.Wrapf(err, "error in template 'r'")
 	}
 
 	err = tfortools.OutputToTemplate(&buf, "reports", rowTmpl, rows, nil)
 	if err != nil {
-		log.Printf("error in template 'reports': %v", err)
+		return "", errors.Wrapf(err, "error in template 'reports'")
 	}
 
 	return buf.String(), err
