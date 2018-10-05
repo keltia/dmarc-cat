@@ -14,14 +14,12 @@ var (
 	// MyName is the application
 	MyName = filepath.Base(os.Args[0])
 	// MyVersion is our version
-	MyVersion = "0.3.0"
+	MyVersion = "0.4.0-wip"
 	// Author should be abvious
 	Author = "Ollivier Robert"
 
 	fDebug   bool
 	fVerbose bool
-
-	tempdir string
 )
 
 func init() {
@@ -34,6 +32,7 @@ func main() {
 
 	if fDebug {
 		fVerbose = true
+		debug("debug mode")
 	}
 
 	if len(flag.Args()) != 1 {
@@ -47,17 +46,9 @@ func main() {
 	defer snd.Cleanup()
 
 	file := flag.Arg(0)
-	err = snd.Run(func() error {
-		var err error
-
-		if text, err := HandleSingleFile(snd.Cwd(), file); err != nil {
-			log.Printf("error parsing %s: %v", file, err)
-		} else {
-			fmt.Println(text)
-		}
-		return err
-	})
+	txt, err := HandleSingleFile(snd, file)
 	if err != nil {
-		log.Printf("error handling %s: %v", file, err)
+		log.Fatalf("error handling %s: %v", file, err)
 	}
+	fmt.Println(txt)
 }
