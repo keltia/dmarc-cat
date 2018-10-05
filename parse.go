@@ -3,22 +3,26 @@ package main
 import (
 	"encoding/xml"
 	"fmt"
+	"io"
 	"io/ioutil"
+
+	"github.com/pkg/errors"
 )
 
-func parseXML(file string) (Feedback, error) {
-
-	var body []byte
+func ParseXML(r io.ReadCloser) (Feedback, error) {
 	var report Feedback
 
-	verbose("parsing %s\n", file)
-	body, err := ioutil.ReadFile(file)
+	if r == nil {
+		return Feedback{}, fmt.Errorf("r is nil")
+	}
+
+	body, err := ioutil.ReadAll(r)
 	if err != nil {
-		return Feedback{}, fmt.Errorf("unable to read file: %v", err)
+		return Feedback{}, errors.Wrap(err, "readall")
 	}
 
 	if err := xml.Unmarshal(body, &report); err != nil {
-		return Feedback{}, fmt.Errorf("unable to parse file: %v", err)
+		return Feedback{}, errors.Wrap(err, "unmarshall")
 	}
 	return report, nil
 }
