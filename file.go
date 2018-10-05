@@ -34,7 +34,7 @@ func OpenFile(tempdir, file string) (r io.ReadCloser, err error) {
 	var myfile string
 
 	if _, err = os.Stat(file); err != nil {
-		return
+		return nil, errors.Wrap(err, "OpenFile/stat")
 	}
 
 	myfile = file
@@ -160,19 +160,28 @@ func handleSingleFile(tempdir string, file string) (err error) {
 	var myfile string
 
 	// We want the full path
-	if myfile, err = filepath.Abs(file); err != nil {
-		log.Fatalf("error checking %s: %v", file, err)
+	myfile, err := filepath.Abs(file)
+	if err != nil {
+		return "", errors.Wrapf(err, "Abs(%s)", file)
 	}
 
-	// Look at the file and whatever might be inside (and decrypt/unzip/…)
-	myfile, err = openFile(tempdir, myfile)
-	if err != nil {
-		return
-	}
+	var fh io.ReadCloser
+
+	err = snd.Run(func() error {
+		var err error
+
+		tempdir := snd.Cwd()
+		// Look at the file and whatever might be inside (and decrypt/unzip/…)
+		fh, err = OpenFile(tempdir, myfile)
+		if err != nil {
+			return errors.Wrap(err, "OpenFile")
+		}
+		return err
+	})
 
 	report, err := parseXML(myfile)
 	if err != nil {
-		log.Fatalf("error parsing XML: %v", err)
+		return "", errors.Wrap(err, "error parsing XML")
 	}
 
 	debug("report=%v\n", report)
