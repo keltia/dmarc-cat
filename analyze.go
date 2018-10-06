@@ -25,6 +25,7 @@ Reports({{.Count}}):
 	rowTmpl = `{{ table (sort . "Count" "dsc")}}`
 )
 
+// My template vars
 type headVars struct {
 	MyName      string
 	MyVersion   string
@@ -41,6 +42,7 @@ type headVars struct {
 	Count       int
 }
 
+// Single row
 type row struct {
 	IP    net.IP
 	Count int
@@ -102,6 +104,7 @@ func Analyze(r Feedback) (string, error) {
 		return "", errors.Wrapf(err, "error in template 'r'")
 	}
 
+	// Rows
 	err = tfortools.OutputToTemplate(&buf, "reports", rowTmpl, rows, nil)
 	if err != nil {
 		return "", errors.Wrapf(err, "error in template 'reports'")
