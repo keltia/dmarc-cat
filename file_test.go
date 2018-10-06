@@ -25,6 +25,7 @@ func TestCheckFilename(t *testing.T) {
 	}{
 		{"foo.bar", false},
 		{"example.com!keltia.net!1538604008!1538690408.xml.gz", true},
+		{"example.com!keltia.net!1538604008!1538690408.xml.gz", true},
 	}
 	for _, e := range td {
 		res := checkFilename(e.In)
@@ -59,6 +60,7 @@ func TestOpenFile2(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
 
+	require.NoError(t, snd.Exit())
 	snd.Cleanup()
 }
 
@@ -74,7 +76,7 @@ func TestOpenFile3(t *testing.T) {
 
 	r, err := OpenFile(snd.Cwd(), file)
 	assert.NoError(t, err)
-	assert.NotNil(t, r)
+	require.NotNil(t, r)
 	defer r.Close()
 
 	bfile := filepath.Base(file)
@@ -91,6 +93,40 @@ func TestOpenFile3(t *testing.T) {
 	assert.Equal(t, "example.com!keltia.net!1538604008!1538690408.xml", unc)
 	assert.FileExists(t, filepath.Join(snd.Cwd(), unc))
 
+	require.NoError(t, snd.Exit())
+	snd.Cleanup()
+}
+
+func TestOpenFile4(t *testing.T) {
+	snd := Before(t)
+
+	file := "testdata/google.com!keltia.net!1538438400!1538524799.zip"
+	file, err := filepath.Abs(file)
+	require.NoError(t, err)
+
+	err = snd.Enter()
+	require.NoError(t, err)
+
+	r, err := OpenFile(snd.Cwd(), file)
+	assert.NoError(t, err)
+	require.NotNil(t, r)
+	defer r.Close()
+
+	bfile := filepath.Base(file)
+	require.NotEmpty(t, bfile)
+
+	ext := filepath.Ext(bfile)
+	assert.Equal(t, ".zip", ext)
+
+	pc := strings.Split(bfile, ".")
+	assert.Equal(t, 4, len(pc))
+
+	unc := strings.Join(pc[0:len(pc)-1], ".") + ".xml"
+
+	assert.Equal(t, "google.com!keltia.net!1538438400!1538524799.xml", unc)
+	assert.FileExists(t, filepath.Join(snd.Cwd(), unc))
+
+	require.NoError(t, snd.Exit())
 	snd.Cleanup()
 }
 
@@ -103,6 +139,54 @@ func TestHandleSingleFile(t *testing.T) {
 	assert.Empty(t, txt)
 
 	snd.Cleanup()
+}
+
+func TestHandleSingleFile2(t *testing.T) {
+	snd := Before(t)
+
+	file := "testdata/example.com!keltia.net!1538604008!1538690408.xml.gz"
+	txt, err := HandleSingleFile(snd, file)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, txt)
+
+	snd.Cleanup()
+}
+
+func TestHandleSingleFile3(t *testing.T) {
+	snd := Before(t)
+
+	file := "testdata/google.com!keltia.net!1538438400!1538524799.zip"
+	txt, err := HandleSingleFile(snd, file)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, txt)
+
+	snd.Cleanup()
+}
+
+func TestHandleSingleFile_Verbose(t *testing.T) {
+	fVerbose = true
+	snd := Before(t)
+
+	file := "empty.txt"
+	txt, err := HandleSingleFile(snd, file)
+	assert.Error(t, err)
+	assert.Empty(t, txt)
+
+	snd.Cleanup()
+	fVerbose = false
+}
+
+func TestHandleSingleFile_Debug(t *testing.T) {
+	fDebug = true
+	snd := Before(t)
+
+	file := "empty.txt"
+	txt, err := HandleSingleFile(snd, file)
+	assert.Error(t, err)
+	assert.Empty(t, txt)
+
+	snd.Cleanup()
+	fDebug = false
 }
 
 func TestOpenGzipFile(t *testing.T) {
