@@ -22,7 +22,7 @@ Policy: p={{.Disposition}}; dkim={{.DKIM}}; spf={{.SPF}}
 Reports({{.Count}}):
 `
 
-	rowTmpl = `{{ table .}}`
+	rowTmpl = `{{ table (sort . "Count" "dsc")}}`
 )
 
 type headVars struct {
@@ -50,6 +50,29 @@ type row struct {
 	RSPF  string
 }
 
+// GatherRows extracts all IP and return the rows
+func GatherRows(r Feedback) []row {
+	var rows []row
+
+	for _, report := range r.Records {
+		current := row{
+			IP:    report.Row.SourceIP,
+			Count: report.Row.Count,
+			From:  report.Identifiers.HeaderFrom,
+		}
+		if report.AuthResults.DKIM.Domain == "" {
+			current.RFrom = report.AuthResults.SPF.Domain
+		} else {
+			current.RFrom = report.AuthResults.DKIM.Domain
+		}
+		current.RSPF = report.AuthResults.SPF.Result
+		current.RDKIM = report.AuthResults.DKIM.Result
+
+		rows = append(rows, current)
+	}
+	return rows
+}
+
 // Analyze extract and display what we want
 func Analyze(r Feedback) (string, error) {
 	var buf bytes.Buffer
@@ -70,24 +93,9 @@ func Analyze(r Feedback) (string, error) {
 		Count:       len(r.Records),
 	}
 
-	var rows []row
+	rows := GatherRows(r)
 
-	for _, report := range r.Records {
-		current := row{
-			IP:    report.Row.SourceIP,
-			Count: report.Row.Count,
-			From:  report.Identifiers.HeaderFrom,
-		}
-		if report.AuthResults.DKIM.Domain == "" {
-			current.RFrom = report.AuthResults.SPF.Domain
-		} else {
-			current.RFrom = report.AuthResults.DKIM.Domain
-		}
-		current.RSPF = report.AuthResults.SPF.Result
-		current.RDKIM = report.AuthResults.DKIM.Result
-
-		rows = append(rows, current)
-	}
+	// Header
 	t := template.Must(template.New("r").Parse(string(reportTmpl)))
 	err := t.ExecuteTemplate(&buf, "r", tmplvars)
 	if err != nil {
