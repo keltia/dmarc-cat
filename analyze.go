@@ -110,5 +110,5 @@ func Analyze(r Feedback) (string, error) {
 		return "", errors.Wrapf(err, "error in template 'reports'")
 	}
 
-	return buf.String(), err
+	return buf.String(), nil
 }
