@@ -187,10 +187,5 @@ func HandleSingleFile(snd *sandbox.Dir, file string) (string, error) {
 
 	debug("report=%v\n", report)
 
-	output, err := Analyze(report)
-	if err != nil {
-		log.Printf("error: %v", err)
-	}
-
-	return output, nil
+	return Analyze(report)
 }
