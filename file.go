@@ -45,30 +45,33 @@ func OpenFile(tempdir, file string) (r io.ReadCloser, err error) {
 
 		verbose("found zip file %s", myfile)
 
-		myfile = openZipfile(tempdir, myfile)
+		myfile, err = openZipfile(tempdir, myfile)
 	} else if path.Ext(myfile) == ".gz" ||
 		path.Ext(myfile) == ".GZ" {
 		verbose("found gzip file %s", myfile)
 
-		myfile = OpenGzipFile(tempdir, myfile)
+		myfile, err = OpenGzipFile(tempdir, myfile)
+	}
+	if err != nil {
+		return nil, errors.Wrap(err, "opengzipfile")
 	}
 	return os.Open(myfile)
 }
 
 // ExtractXML reads the first xml in the zip file and copy into a temp file
-func ExtractXML(tempdir string, fn *zip.File) (file string) {
+func ExtractXML(tempdir string, fn *zip.File) (string, error) {
 	verbose("found %s", fn.Name)
 
 	// Open the stream
 	fh, err := fn.Open()
 	if err != nil {
-		log.Fatalf("unable to extract %s", fn.Name)
+		return "", errors.Wrapf(err, "extract %s", fn.Name)
 	}
 
 	// Create our temp file
 	ours, err := os.Create(filepath.Join(tempdir, fn.Name))
 	if err != nil {
-		log.Fatalf("unable to create %s in %s: %v", fn.Name, tempdir, err)
+		return "", errors.Wrapf(err, "create %s in %s", fn.Name, tempdir)
 	}
 	defer ours.Close()
 
@@ -77,21 +80,21 @@ func ExtractXML(tempdir string, fn *zip.File) (file string) {
 	// copy all the bits over
 	_, err = io.Copy(ours, fh)
 	if err != nil {
-		log.Fatalf("unable to write %s in %s: %v", fn.Name, tempdir, err)
+		return "", errors.Wrapf(err, "write %s in %s", fn.Name, tempdir)
 	}
-	file = filepath.Join(tempdir, fn.Name)
-	return
+	return filepath.Join(tempdir, fn.Name), nil
 }
 
 // openGzipfile uncompress the file and store it into a .csv file in sandbox
-func OpenGzipFile(tempdir, file string) (fname string) {
+func OpenGzipFile(tempdir, file string) (string, error) {
 
 	buf, err := ioutil.ReadFile(file)
+	if err != nil {
+		return "", errors.Wrapf(err, "opening %s", file)
+	}
+
 	bufr := bytes.NewBuffer(buf)
 	zfh, err := gzip.NewReader(bufr)
-	if err != nil {
-		log.Fatalf("error opening %s: %v", file, err)
-	}
 	defer zfh.Close()
 
 	verbose("exploring %s", file)
@@ -100,14 +103,14 @@ func OpenGzipFile(tempdir, file string) (fname string) {
 
 	cmps := strings.Split(file, ".")
 	if cmps == nil {
-		log.Fatalf("error, file not csv: %s", file)
+		return "", errors.Wrapf(err, "file not csv: %s", file)
 	}
 
 	file = strings.Join(cmps[0:len(cmps)-1], ".")
 	// Create our temp file
 	ours, err := os.Create(filepath.Join(tempdir, file))
 	if err != nil {
-		log.Fatalf("unable to create %s in %s: %v", file, tempdir, err)
+		return "", errors.Wrapf(err, "create %s in %s", file, tempdir)
 	}
 	defer ours.Close()
 
@@ -116,12 +119,11 @@ func OpenGzipFile(tempdir, file string) (fname string) {
 	// copy all the bits over
 	_, err = io.Copy(ours, zfh)
 
-	fname = file
-	return
+	return file, nil
 }
 
 // openZipfile extracts the first XML file out of he given zip.
-func openZipfile(tempdir, file string) (fname string) {
+func openZipfile(tempdir, file string) (string, error) {
 	// Go on
 	if err := os.Chdir(tempdir); err != nil {
 		log.Fatalf("unable to use tempdir %s: %v", tempdir, err)
@@ -129,7 +131,7 @@ func openZipfile(tempdir, file string) (fname string) {
 
 	zfh, err := zip.OpenReader(file)
 	if err != nil {
-		log.Fatalf("error opening %s: %v", file, err)
+		return "", errors.Wrapf(err, "opening %s", file)
 	}
 	defer zfh.Close()
 
@@ -140,12 +142,11 @@ func openZipfile(tempdir, file string) (fname string) {
 
 		if path.Ext(fn.Name) == ".xml" ||
 			path.Ext(fn.Name) == ".XML" {
-			file = ExtractXML(tempdir, fn)
+			file, err = ExtractXML(tempdir, fn)
 			break
 		}
 	}
-	fname = file
-	return
+	return file, errors.Wrap(err, "openZipfile")
 }
 
 // HandleSingleFile creates a tempdir and dispatch csv/zip files to handler.
