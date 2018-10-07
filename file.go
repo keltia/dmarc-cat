@@ -11,15 +11,30 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
+
+	"github.com/keltia/sandbox"
+	"github.com/pkg/errors"
 )
 
-// openFile looks at the file and give it to openZipfile() if needed
-func openFile(tempdir, file string) (fn string, err error) {
+const (
+	reFileName = `^([\w\.]+)!([\w\.]+)!([\d]+)!([\d]+)\.(xml\.gz|zip)$`
+)
+
+func checkFilename(file string) (ok bool) {
+	base := filepath.Base(file)
+	re := regexp.MustCompile(reFileName)
+
+	return re.MatchString(base)
+}
+
+// OpenFile looks at the file and give it to openZipfile() if needed
+func OpenFile(tempdir, file string) (r io.ReadCloser, err error) {
 	var myfile string
 
 	if _, err = os.Stat(file); err != nil {
-		return
+		return nil, errors.Wrap(err, "OpenFile/stat")
 	}
 
 	myfile = file
@@ -30,31 +45,33 @@ func openFile(tempdir, file string) (fn string, err error) {
 
 		verbose("found zip file %s", myfile)
 
-		myfile = openZipfile(tempdir, myfile)
+		myfile, err = openZipfile(tempdir, myfile)
 	} else if path.Ext(myfile) == ".gz" ||
 		path.Ext(myfile) == ".GZ" {
 		verbose("found gzip file %s", myfile)
 
-		myfile = openGzipFile(tempdir, myfile)
+		myfile, err = OpenGzipFile(tempdir, myfile)
 	}
-	fn = myfile
-	return
+	if err != nil {
+		return nil, errors.Wrap(err, "opengzipfile")
+	}
+	return os.Open(myfile)
 }
 
-// extractXML reads the first xml in the zip file and copy into a temp file
-func extractXML(tempdir string, fn *zip.File) (file string) {
+// ExtractXML reads the first xml in the zip file and copy into a temp file
+func ExtractXML(tempdir string, fn *zip.File) (string, error) {
 	verbose("found %s", fn.Name)
 
 	// Open the stream
 	fh, err := fn.Open()
 	if err != nil {
-		log.Fatalf("unable to extract %s", fn.Name)
+		return "", errors.Wrapf(err, "extract %s", fn.Name)
 	}
 
 	// Create our temp file
 	ours, err := os.Create(filepath.Join(tempdir, fn.Name))
 	if err != nil {
-		log.Fatalf("unable to create %s in %s: %v", fn.Name, tempdir, err)
+		return "", errors.Wrapf(err, "create %s in %s", fn.Name, tempdir)
 	}
 	defer ours.Close()
 
@@ -63,26 +80,21 @@ func extractXML(tempdir string, fn *zip.File) (file string) {
 	// copy all the bits over
 	_, err = io.Copy(ours, fh)
 	if err != nil {
-		log.Fatalf("unable to write %s in %s: %v", fn.Name, tempdir, err)
+		return "", errors.Wrapf(err, "write %s in %s", fn.Name, tempdir)
 	}
-	file = filepath.Join(tempdir, fn.Name)
-	return
+	return filepath.Join(tempdir, fn.Name), nil
 }
 
 // openGzipfile uncompress the file and store it into a .csv file in sandbox
-func openGzipFile(tempdir, file string) (fname string) {
-
-	// Go on
-	if err := os.Chdir(tempdir); err != nil {
-		log.Fatalf("unable to use tempdir %s: %v", tempdir, err)
-	}
+func OpenGzipFile(tempdir, file string) (string, error) {
 
 	buf, err := ioutil.ReadFile(file)
+	if err != nil {
+		return "", errors.Wrapf(err, "opening %s", file)
+	}
+
 	bufr := bytes.NewBuffer(buf)
 	zfh, err := gzip.NewReader(bufr)
-	if err != nil {
-		log.Fatalf("error opening %s: %v", file, err)
-	}
 	defer zfh.Close()
 
 	verbose("exploring %s", file)
@@ -91,14 +103,14 @@ func openGzipFile(tempdir, file string) (fname string) {
 
 	cmps := strings.Split(file, ".")
 	if cmps == nil {
-		log.Fatalf("error, file not csv: %s", file)
+		return "", errors.Wrapf(err, "file not csv: %s", file)
 	}
 
 	file = strings.Join(cmps[0:len(cmps)-1], ".")
 	// Create our temp file
 	ours, err := os.Create(filepath.Join(tempdir, file))
 	if err != nil {
-		log.Fatalf("unable to create %s in %s: %v", file, tempdir, err)
+		return "", errors.Wrapf(err, "create %s in %s", file, tempdir)
 	}
 	defer ours.Close()
 
@@ -107,13 +119,11 @@ func openGzipFile(tempdir, file string) (fname string) {
 	// copy all the bits over
 	_, err = io.Copy(ours, zfh)
 
-	fname = file
-	return
+	return file, nil
 }
 
 // openZipfile extracts the first XML file out of he given zip.
-func openZipfile(tempdir, file string) (fname string) {
-
+func openZipfile(tempdir, file string) (string, error) {
 	// Go on
 	if err := os.Chdir(tempdir); err != nil {
 		log.Fatalf("unable to use tempdir %s: %v", tempdir, err)
@@ -121,7 +131,7 @@ func openZipfile(tempdir, file string) (fname string) {
 
 	zfh, err := zip.OpenReader(file)
 	if err != nil {
-		log.Fatalf("error opening %s: %v", file, err)
+		return "", errors.Wrapf(err, "opening %s", file)
 	}
 	defer zfh.Close()
 
@@ -132,39 +142,50 @@ func openZipfile(tempdir, file string) (fname string) {
 
 		if path.Ext(fn.Name) == ".xml" ||
 			path.Ext(fn.Name) == ".XML" {
-			file = extractXML(tempdir, fn)
+			file, err = ExtractXML(tempdir, fn)
 			break
 		}
 	}
-	fname = file
-	return
+	return file, errors.Wrap(err, "openZipfile")
 }
 
-// handleSingleFile creates a tempdir and dispatch csv/zip files to handler.
-func handleSingleFile(tempdir string, file string) (err error) {
+// HandleSingleFile creates a tempdir and dispatch csv/zip files to handler.
+func HandleSingleFile(snd *sandbox.Dir, file string) (string, error) {
 	var myfile string
 
+	debug("file=%s", file)
+	if !checkFilename(file) {
+		return "", fmt.Errorf("bad filename")
+	}
+
 	// We want the full path
-	if myfile, err = filepath.Abs(file); err != nil {
-		log.Fatalf("error checking %s: %v", file, err)
+	myfile, err := filepath.Abs(file)
+	if err != nil {
+		return "", errors.Wrapf(err, "Abs(%s)", file)
 	}
 
-	// Look at the file and whatever might be inside (and decrypt/unzip/…)
-	myfile, err = openFile(tempdir, myfile)
-	if err != nil {
-		return
-	}
+	var fh io.ReadCloser
 
-	report, err := parseXML(myfile)
+	err = snd.Run(func() error {
+		var err error
+
+		tempdir := snd.Cwd()
+		// Look at the file and whatever might be inside (and decrypt/unzip/…)
+		fh, err = OpenFile(tempdir, myfile)
+		if err != nil {
+			return errors.Wrap(err, "OpenFile")
+		}
+		return err
+	})
+
+	debug("fh=%#v", fh)
+	verbose("Analyzing %s", myfile)
+	report, err := ParseXML(fh)
 	if err != nil {
-		log.Fatalf("error parsing XML: %v", err)
+		return "", errors.Wrap(err, "error parsing XML")
 	}
 
 	debug("report=%v\n", report)
 
-	output, err := Analyze(report)
-
-	fmt.Println(output)
-
-	return
+	return Analyze(report)
 }
