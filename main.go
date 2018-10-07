@@ -36,19 +36,22 @@ func main() {
 	}
 
 	if len(flag.Args()) != 1 {
-		log.Fatalln("You must specify at least one file.")
+		log.Println("You must specify at least one file.")
+		return
 	}
 
 	snd, err := sandbox.New(MyName)
 	if err != nil {
-		log.Fatalf("Fatal: Can not create sandbox: %v", err)
+		log.Printf("Fatal: Can not create sandbox: %v", err)
+		return
 	}
 	defer snd.Cleanup()
 
 	file := flag.Arg(0)
 	txt, err := HandleSingleFile(snd, file)
 	if err != nil {
-		log.Fatalf("error handling %s: %v", file, err)
+		log.Printf("error handling %s: %v", file, err)
+		return
 	}
 	fmt.Println(txt)
 }
