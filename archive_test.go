@@ -54,6 +54,8 @@ func TestNewArchive_Tar(t *testing.T) {
 
 }
 
+// Plain
+
 func TestPlain_Extract(t *testing.T) {
 	fn := "testdata/notempty.txt"
 	a, err := NewArchive(fn)
@@ -83,6 +85,8 @@ func TestPlain_Close(t *testing.T) {
 
 	require.NoError(t, a.Close())
 }
+
+// Zip
 
 func TestZip_Extract(t *testing.T) {
 	fn := "testdata/google.com!keltia.net!1538438400!1538524799.zip"
