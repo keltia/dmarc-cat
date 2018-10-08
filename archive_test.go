@@ -100,6 +100,7 @@ func TestZip_Extract(t *testing.T) {
 	require.NotEmpty(t, rh)
 
 	txt, err := a.Extract(".xml")
+	assert.NoError(t, err)
 	assert.Equal(t, string(rh), string(txt))
 }
 
