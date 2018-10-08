@@ -50,11 +50,11 @@ func NewZipfile(fn string) (*Zip, error) {
 func (a Zip) Extract(t string) ([]byte, error) {
 	verbose("exploring %s", a.fn)
 
+	ft := strings.ToLower(t)
 	for _, fn := range a.zfh.File {
 		verbose("looking at %s", fn.Name)
 
-		if path.Ext(fn.Name) == t ||
-			path.Ext(fn.Name) == strings.ToUpper(t) {
+		if path.Ext(fn.Name) == ft {
 			file, err := fn.Open()
 			if err != nil {
 				return []byte{}, errors.Wrapf(err, "no file matching type %s", t)
