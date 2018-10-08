@@ -107,18 +107,6 @@ func (a Gzip) Close() error {
 	return nil
 }
 
-type Tar struct {
-	fn string
-}
-
-func (a Tar) Extract(t string) ([]byte, error) {
-	return []byte{}, nil
-}
-
-func (a Tar) Close() error {
-	return nil
-}
-
 func NewArchive(fn string) (ExtractCloser, error) {
 	if fn == "" {
 		return &Plain{}, fmt.Errorf("null string")
@@ -129,8 +117,6 @@ func NewArchive(fn string) (ExtractCloser, error) {
 		return NewZipfile(fn)
 	case ".gz":
 		return NewGzipfile(fn)
-	case ".tar":
-		return &Tar{fn: fn}, nil
 	}
 	return &Plain{fn}, nil
 }
