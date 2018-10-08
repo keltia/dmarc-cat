@@ -15,6 +15,10 @@ import (
 
 type Extracter interface {
 	Extract(t string) ([]byte, error)
+}
+
+type ExtractCloser interface {
+	Extracter
 	Close() error
 }
 
@@ -111,7 +115,7 @@ func (a Tar) Close() error {
 	return nil
 }
 
-func NewArchive(fn string) (Extracter, error) {
+func NewArchive(fn string) (ExtractCloser, error) {
 	if fn == "" {
 		return &Plain{}, fmt.Errorf("null string")
 	}
