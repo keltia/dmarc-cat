@@ -94,9 +94,13 @@ func (a Gzip) Extract(t string) ([]byte, error) {
 	}
 	bufr := bytes.NewBuffer(buf)
 	zfh, err := gzip.NewReader(bufr)
+	if err != nil {
+		return []byte{}, errors.Wrap(err, "gunzip")
+	}
+	content, err := ioutil.ReadAll(zfh)
 	defer zfh.Close()
 
-	return ioutil.ReadAll(zfh)
+	return content, err
 }
 
 func (a Gzip) Close() error {
