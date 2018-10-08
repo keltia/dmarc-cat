@@ -37,7 +37,14 @@ func HandleSingleFile(snd *sandbox.Dir, file string) (string, error) {
 	}
 
 	a, err := NewArchive(myfile)
+	if err != nil {
+		return "", errors.Wrap(err, "newarchive")
+	}
+
 	body, err := a.Extract(".xml")
+	if err != nil {
+		return "", errors.Wrap(err, "extract")
+	}
 
 	debug("xml=%#v", body)
 	verbose("Analyzing %s", myfile)
