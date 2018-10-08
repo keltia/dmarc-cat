@@ -139,3 +139,57 @@ func TestZip_Close(t *testing.T) {
 
 	require.NoError(t, a.Close())
 }
+
+// Gzip
+
+func TestGzip_Extract(t *testing.T) {
+	fn := "testdata/example.com!keltia.net!1538604008!1538690408.xml.gz"
+	a, err := NewArchive(fn)
+	require.NoError(t, err)
+	require.NotNil(t, a)
+	defer a.Close()
+
+	rh, err := ioutil.ReadFile("testdata/example.com!keltia.net!1538604008!1538690408.xml")
+	require.NoError(t, err)
+	require.NotEmpty(t, rh)
+
+	txt, err := a.Extract(".xml")
+	assert.NoError(t, err)
+	assert.Equal(t, string(rh), string(txt))
+}
+
+func TestGzip_Extract2(t *testing.T) {
+	fn := "testdata/notempty.txt.gz"
+	a, err := NewArchive(fn)
+	require.NoError(t, err)
+	require.NotNil(t, a)
+
+	rh, err := ioutil.ReadFile("testdata/notempty.txt")
+	require.NoError(t, err)
+	require.NotEmpty(t, rh)
+
+	txt, err := a.Extract(".txt")
+	assert.NoError(t, err)
+	assert.NotEmpty(t, txt)
+	assert.Equal(t, string(rh), string(txt))
+}
+
+func TestGzip_Extract3(t *testing.T) {
+	fn := "/nonexistent"
+	a, err := NewArchive(fn)
+	require.NoError(t, err)
+	require.NotNil(t, a)
+
+	txt, err := a.Extract(".txt")
+	assert.Error(t, err)
+	assert.Empty(t, txt)
+}
+
+func TestGzip_Close(t *testing.T) {
+	fn := "testdata/notempty.txt.gz"
+	a, err := NewArchive(fn)
+	require.NoError(t, err)
+	require.NotNil(t, a)
+
+	require.NoError(t, a.Close())
+}
