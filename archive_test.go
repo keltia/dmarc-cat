@@ -89,6 +89,7 @@ func TestZip_Extract(t *testing.T) {
 	a, err := NewArchive(fn)
 	require.NoError(t, err)
 	require.NotNil(t, a)
+	defer a.Close()
 
 	rh, err := ioutil.ReadFile("testdata/google.com!keltia.net!1538438400!1538524799.xml")
 	require.NoError(t, err)
@@ -107,4 +108,13 @@ func TestZip_Extract2(t *testing.T) {
 	txt, err := a.Extract(".xml")
 	assert.Error(t, err)
 	assert.Empty(t, txt)
+}
+
+func TestZip_Close(t *testing.T) {
+	fn := "testdata/notempty.zip"
+	a, err := NewArchive(fn)
+	require.NoError(t, err)
+	require.NotNil(t, a)
+
+	require.NoError(t, a.Close())
 }
