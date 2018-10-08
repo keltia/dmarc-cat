@@ -115,6 +115,22 @@ func TestZip_Extract2(t *testing.T) {
 	assert.Empty(t, txt)
 }
 
+func TestZip_Extract3(t *testing.T) {
+	fn := "testdata/google.com!keltia.net!1538438400!1538524799.zip"
+	a, err := NewArchive(fn)
+	require.NoError(t, err)
+	require.NotNil(t, a)
+	defer a.Close()
+
+	rh, err := ioutil.ReadFile("testdata/google.com!keltia.net!1538438400!1538524799.xml")
+	require.NoError(t, err)
+	require.NotEmpty(t, rh)
+
+	txt, err := a.Extract(".txt")
+	assert.Error(t, err)
+	assert.Empty(t, txt)
+}
+
 func TestZip_Close(t *testing.T) {
 	fn := "testdata/notempty.zip"
 	a, err := NewArchive(fn)
