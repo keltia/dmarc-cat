@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io/ioutil"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -61,4 +62,29 @@ func TestPlain_Extract(t *testing.T) {
 
 	txt, err := a.Extract("")
 	assert.Equal(t, "this is a file\n", string(txt))
+}
+
+func TestZip_Extract(t *testing.T) {
+	fn := "testdata/google.com!keltia.net!1538438400!1538524799.zip"
+	a, err := NewArchive(fn)
+	require.NoError(t, err)
+	require.NotNil(t, a)
+
+	rh, err := ioutil.ReadFile("testdata/google.com!keltia.net!1538438400!1538524799.xml")
+	require.NoError(t, err)
+	require.NotEmpty(t, rh)
+
+	txt, err := a.Extract(".xml")
+	assert.Equal(t, string(rh), string(txt))
+}
+
+func TestZip_Extract2(t *testing.T) {
+	fn := "testdata/notempty.zip"
+	a, err := NewArchive(fn)
+	require.NoError(t, err)
+	require.NotNil(t, a)
+
+	txt, err := a.Extract(".xml")
+	assert.Error(t, err)
+	assert.Empty(t, txt)
 }
