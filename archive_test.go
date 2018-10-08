@@ -46,14 +46,6 @@ func TestNewArchive_Gzip(t *testing.T) {
 
 }
 
-func TestNewArchive_Tar(t *testing.T) {
-	a, err := NewArchive("foo.tar")
-	require.NoError(t, err)
-	assert.NotEmpty(t, a)
-	assert.IsType(t, (*Tar)(nil), a)
-
-}
-
 // Plain
 
 func TestPlain_Extract(t *testing.T) {
