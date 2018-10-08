@@ -64,6 +64,26 @@ func TestPlain_Extract(t *testing.T) {
 	assert.Equal(t, "this is a file\n", string(txt))
 }
 
+func TestPlain_Extract2(t *testing.T) {
+	fn := "testdata/notempty.txt"
+	a, err := NewArchive(fn)
+	require.NoError(t, err)
+	require.NotNil(t, a)
+
+	txt, err := a.Extract(".doc")
+	assert.Error(t, err)
+	assert.Empty(t, txt)
+}
+
+func TestPlain_Close(t *testing.T) {
+	fn := "testdata/notempty.txt"
+	a, err := NewArchive(fn)
+	require.NoError(t, err)
+	require.NotNil(t, a)
+
+	require.NoError(t, a.Close())
+}
+
 func TestZip_Extract(t *testing.T) {
 	fn := "testdata/google.com!keltia.net!1538438400!1538524799.zip"
 	a, err := NewArchive(fn)

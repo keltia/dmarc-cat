@@ -23,7 +23,11 @@ type Plain struct {
 }
 
 func (a Plain) Extract(t string) ([]byte, error) {
-	return ioutil.ReadFile(a.Name)
+	ext := filepath.Ext(a.Name)
+	if ext == t || t == "" {
+		return ioutil.ReadFile(a.Name)
+	}
+	return []byte{}, fmt.Errorf("wrong file type")
 }
 
 func (a Plain) Close() error {
