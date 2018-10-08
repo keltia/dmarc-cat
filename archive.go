@@ -15,6 +15,7 @@ import (
 
 type Extracter interface {
 	Extract(t string) ([]byte, error)
+	Close() error
 }
 
 type Plain struct {
@@ -23,6 +24,10 @@ type Plain struct {
 
 func (a Plain) Extract(t string) ([]byte, error) {
 	return ioutil.ReadFile(a.Name)
+}
+
+func (a Plain) Close() error {
+	return nil
 }
 
 type Zip struct {
@@ -86,12 +91,20 @@ func (a Gzip) Extract(t string) ([]byte, error) {
 	return ioutil.ReadAll(zfh)
 }
 
+func (a Gzip) Close() error {
+	return nil
+}
+
 type Tar struct {
 	fn string
 }
 
 func (a Tar) Extract(t string) ([]byte, error) {
 	return []byte{}, nil
+}
+
+func (a Tar) Close() error {
+	return nil
 }
 
 func NewArchive(fn string) (Extracter, error) {
