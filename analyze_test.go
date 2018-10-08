@@ -7,7 +7,9 @@ import (
 )
 
 func TestAnalyze(t *testing.T) {
-
+	s, err := Analyze(Feedback{})
+	assert.Error(t, err)
+	assert.Empty(t, s)
 }
 
 func TestGatherRows_Empty(t *testing.T) {

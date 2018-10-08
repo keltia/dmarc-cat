@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"net"
 	"text/template"
 	"time"
@@ -96,6 +97,9 @@ func Analyze(r Feedback) (string, error) {
 	}
 
 	rows := GatherRows(r)
+	if len(rows) == 0 {
+		return "", fmt.Errorf("empty report")
+	}
 
 	// Header
 	t := template.Must(template.New("r").Parse(string(reportTmpl)))
