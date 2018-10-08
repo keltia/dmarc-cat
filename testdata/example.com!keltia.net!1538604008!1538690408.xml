@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<feedback>
+  <version>1.0</version>
+  <report_metadata>
+    <org_name>esa1.eurocontrol.c3s2.iphmx.com</org_name>
+    <email>MAILER-DAEMON@esa1.eurocontrol.c3s2.iphmx.com</email>
+    <extra_contact_info></extra_contact_info>
+    <report_id>1a6ffb$9f77bea=6b2f4786a9824806@esa1.eurocontrol.c3s2.iphmx.com</report_id>
+    <date_range>
+      <begin>1538604008</begin>
+      <end>1538690408</end>
+    </date_range>
+  </report_metadata>
+  <policy_published>
+    <domain>keltia.net</domain>
+    <adkim>r</adkim>
+    <aspf>r</aspf>
+    <p>none</p>
+    <sp></sp>
+    <pct>100</pct>
+  </policy_published>
+  <record>
+    <row>
+      <source_ip>88.191.250.24</source_ip>
+      <count>1</count>
+      <policy_evaluated>
+        <disposition>none</disposition>
+        <dkim>fail</dkim>
+        <spf>pass</spf>
+      </policy_evaluated>
+    </row>
+    <identifiers>
+      <header_from>keltia.net</header_from>
+      <envelope_from>keltia.net</envelope_from>
+    </identifiers>
+    <auth_results>
+      <spf>
+        <domain>keltia.net</domain>
+        <scope>mfrom</scope>
+        <result>pass</result>
+      </spf>
+    </auth_results>
+  </record>
+</feedback>

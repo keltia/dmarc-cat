@@ -14,7 +14,7 @@ var (
 	// MyName is the application
 	MyName = filepath.Base(os.Args[0])
 	// MyVersion is our version
-	MyVersion = "0.4.0"
+	MyVersion = "0.5.0"
 	// Author should be abvious
 	Author = "Ollivier Robert"
 
@@ -36,19 +36,22 @@ func main() {
 	}
 
 	if len(flag.Args()) != 1 {
-		log.Fatalln("You must specify at least one file.")
+		log.Println("You must specify at least one file.")
+		return
 	}
 
 	snd, err := sandbox.New(MyName)
 	if err != nil {
-		log.Fatalf("Fatal: Can not create sandbox: %v", err)
+		log.Printf("Fatal: Can not create sandbox: %v", err)
+		return
 	}
 	defer snd.Cleanup()
 
 	file := flag.Arg(0)
 	txt, err := HandleSingleFile(snd, file)
 	if err != nil {
-		log.Fatalf("error handling %s: %v", file, err)
+		log.Printf("error handling %s: %v", file, err)
+		return
 	}
 	fmt.Println(txt)
 }
