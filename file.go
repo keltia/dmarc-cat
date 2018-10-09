@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/keltia/sandbox"
 	"github.com/pkg/errors"
 )
 
@@ -22,7 +21,7 @@ func checkFilename(file string) (ok bool) {
 }
 
 // HandleSingleFile creates a tempdir and dispatch csv/zip files to handler.
-func HandleSingleFile(snd *sandbox.Dir, file string) (string, error) {
+func HandleSingleFile(ctx *Context, file string) (string, error) {
 	var myfile string
 
 	debug("file=%s", file)
@@ -57,5 +56,5 @@ func HandleSingleFile(snd *sandbox.Dir, file string) (string, error) {
 
 	debug("report=%v\n", report)
 
-	return Analyze(report)
+	return Analyze(ctx, report)
 }
