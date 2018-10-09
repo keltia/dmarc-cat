@@ -62,7 +62,7 @@ func main() {
 	}
 
 	file := flag.Arg(0)
-	txt, err := HandleSingleFile(snd, file)
+	txt, err := HandleSingleFile(ctx, file)
 	if err != nil {
 		log.Printf("error handling %s: %v", file, err)
 		return
