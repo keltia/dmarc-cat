@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	"net"
+	"fmt"
 	"text/template"
 	"time"
 
@@ -44,7 +44,7 @@ type headVars struct {
 
 // Single row
 type row struct {
-	IP    net.IP
+	IP    string
 	Count int
 	From  string
 	RFrom string
@@ -53,12 +53,20 @@ type row struct {
 }
 
 // GatherRows extracts all IP and return the rows
-func GatherRows(r Feedback) []row {
+func GatherRows(ctx *Context, r Feedback) []row {
 	var rows []row
 
 	for _, report := range r.Records {
+		var ip0 string
+
+		ip, err := ctx.r.LookupAddr(report.Row.SourceIP.String())
+		if err != nil {
+			ip0 = report.Row.SourceIP.String()
+		} else {
+			ip0 = ip[0]
+		}
 		current := row{
-			IP:    report.Row.SourceIP,
+			IP:    ip0,
 			Count: report.Row.Count,
 			From:  report.Identifiers.HeaderFrom,
 		}
@@ -76,7 +84,7 @@ func GatherRows(r Feedback) []row {
 }
 
 // Analyze extract and display what we want
-func Analyze(r Feedback) (string, error) {
+func Analyze(ctx *Context, r Feedback) (string, error) {
 	var buf bytes.Buffer
 
 	tmplvars := &headVars{
@@ -95,7 +103,10 @@ func Analyze(r Feedback) (string, error) {
 		Count:       len(r.Records),
 	}
 
-	rows := GatherRows(r)
+	rows := GatherRows(ctx, r)
+	if len(rows) == 0 {
+		return "", fmt.Errorf("empty report")
+	}
 
 	// Header
 	t := template.Must(template.New("r").Parse(string(reportTmpl)))

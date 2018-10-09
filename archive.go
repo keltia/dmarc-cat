@@ -13,19 +13,23 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Extracter is the main interface we have
 type Extracter interface {
 	Extract(t string) ([]byte, error)
 }
 
+// ExtractCloser is the same with Close()
 type ExtractCloser interface {
 	Extracter
 	Close() error
 }
 
+// Plain is for plain text
 type Plain struct {
 	Name string
 }
 
+// Extract returns the content of the file
 func (a Plain) Extract(t string) ([]byte, error) {
 	ext := filepath.Ext(a.Name)
 	if ext == t || t == "" {
@@ -34,15 +38,18 @@ func (a Plain) Extract(t string) ([]byte, error) {
 	return []byte{}, fmt.Errorf("wrong file type")
 }
 
+// Close is a no-op
 func (a Plain) Close() error {
 	return nil
 }
 
+// Zip is for pkzip/infozip files
 type Zip struct {
 	fn  string
 	zfh *zip.ReadCloser
 }
 
+// NewZipfile open the zip file
 func NewZipfile(fn string) (*Zip, error) {
 	zfh, err := zip.OpenReader(fn)
 	if err != nil {
@@ -51,6 +58,7 @@ func NewZipfile(fn string) (*Zip, error) {
 	return &Zip{fn: fn, zfh: zfh}, nil
 }
 
+// Extract returns the content of the file
 func (a Zip) Extract(t string) ([]byte, error) {
 	verbose("exploring %s", a.fn)
 
@@ -70,15 +78,18 @@ func (a Zip) Extract(t string) ([]byte, error) {
 	return []byte{}, fmt.Errorf("no file matching type %s", t)
 }
 
+// Close does something here
 func (a Zip) Close() error {
 	return a.zfh.Close()
 }
 
+// Gzip is a gzip-compressed file
 type Gzip struct {
 	fn  string
 	unc string
 }
 
+// NewGzipfile stores the uncompressed file name
 func NewGzipfile(fn string) (*Gzip, error) {
 	base := filepath.Base(fn)
 	pc := strings.Split(base, ".")
@@ -87,6 +98,7 @@ func NewGzipfile(fn string) (*Gzip, error) {
 	return &Gzip{fn: fn, unc: unc}, nil
 }
 
+// Extract returns the content of the file
 func (a Gzip) Extract(t string) ([]byte, error) {
 	buf, err := ioutil.ReadFile(a.fn)
 	if err != nil {
@@ -103,22 +115,12 @@ func (a Gzip) Extract(t string) ([]byte, error) {
 	return content, err
 }
 
+// Close is a no-op
 func (a Gzip) Close() error {
 	return nil
 }
 
-type Tar struct {
-	fn string
-}
-
-func (a Tar) Extract(t string) ([]byte, error) {
-	return []byte{}, nil
-}
-
-func (a Tar) Close() error {
-	return nil
-}
-
+// NewArchive is the main creator
 func NewArchive(fn string) (ExtractCloser, error) {
 	if fn == "" {
 		return &Plain{}, fmt.Errorf("null string")
@@ -129,8 +131,6 @@ func NewArchive(fn string) (ExtractCloser, error) {
 		return NewZipfile(fn)
 	case ".gz":
 		return NewGzipfile(fn)
-	case ".tar":
-		return &Tar{fn: fn}, nil
 	}
 	return &Plain{fn}, nil
 }
