@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/xml"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -38,4 +39,23 @@ func TestGatherRows_Good(t *testing.T) {
 
 	rows := GatherRows(ctx, report)
 	assert.Equal(t, 1, len(rows))
+}
+
+type ErrResolver struct{}
+
+func (ErrResolver) LookupAddr(ip string) ([]string, error) {
+	return []string{}, fmt.Errorf("fake error")
+}
+
+func TestResolveIP_Error(t *testing.T) {
+	ctx := &Context{r: ErrResolver{}}
+	ips := ResolveIP(ctx, "8.8.8.8")
+	assert.Equal(t, "8.8.8.8", ips)
+}
+
+func TestResolveIP_Good(t *testing.T) {
+	ctx := &Context{r: ErrResolver{}}
+	ips := ResolveIP(ctx, "8.8.8.8")
+	assert.NotEmpty(t, ips)
+	assert.Equal(t, "8.8.8.8", ips)
 }
