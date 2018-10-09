@@ -23,8 +23,21 @@ func TestMain_Noargs_Debug(t *testing.T) {
 	fDebug = false
 }
 
+func TestMain_Noargs_NoResolv(t *testing.T) {
+	os.Args = append(os.Args, "testdata/google.com!keltia.net!1538438400!1538524799.zip")
+
+	fNoResolv = true
+	main()
+	fNoResolv = false
+}
+
 func TestMain_GoodFile(t *testing.T) {
 	os.Args = append(os.Args, "testdata/google.com!keltia.net!1538438400!1538524799.zip")
+	main()
+}
+
+func TestMain_NoFile(t *testing.T) {
+	os.Args = append(os.Args, "/nonexistent")
 	main()
 }
 
