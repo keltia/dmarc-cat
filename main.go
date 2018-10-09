@@ -18,12 +18,19 @@ var (
 	// Author should be abvious
 	Author = "Ollivier Robert"
 
-	fDebug   bool
-	fVerbose bool
+	fDebug    bool
+	fNoResolv bool
+	fVerbose  bool
 )
+
+type Context struct {
+	r   Resolver
+	snd *sandbox.Dir
+}
 
 func init() {
 	flag.BoolVar(&fDebug, "D", false, "Debug mode")
+	flag.BoolVar(&fNoResolv, "N", false, "Do not resolve IPs")
 	flag.BoolVar(&fVerbose, "v", false, "Verbose mode")
 }
 
@@ -46,6 +53,13 @@ func main() {
 		return
 	}
 	defer snd.Cleanup()
+
+	ctx := &Context{RealResolver{}, snd}
+
+	// Make it easier to sub it out
+	if fNoResolv {
+		ctx.r = NullResolver{}
+	}
 
 	file := flag.Arg(0)
 	txt, err := HandleSingleFile(snd, file)
