@@ -72,15 +72,14 @@ func GatherRows(ctx *Context, r Feedback) []row {
 			IP:    ip0,
 			Count: report.Row.Count,
 			From:  report.Identifiers.HeaderFrom,
+			RSPF:  report.AuthResults.SPF.Result,
+			RDKIM: report.AuthResults.DKIM.Result,
 		}
 		if report.AuthResults.DKIM.Domain == "" {
 			current.RFrom = report.AuthResults.SPF.Domain
 		} else {
 			current.RFrom = report.AuthResults.DKIM.Domain
 		}
-		current.RSPF = report.AuthResults.SPF.Result
-		current.RDKIM = report.AuthResults.DKIM.Result
-
 		rows = append(rows, current)
 	}
 	return rows
