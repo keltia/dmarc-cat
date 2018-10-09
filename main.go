@@ -14,7 +14,7 @@ var (
 	// MyName is the application
 	MyName = filepath.Base(os.Args[0])
 	// MyVersion is our version
-	MyVersion = "0.5.0"
+	MyVersion = "0.6.0"
 	// Author should be abvious
 	Author = "Ollivier Robert"
 
