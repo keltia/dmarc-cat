@@ -6,15 +6,13 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-
-	"github.com/keltia/sandbox"
 )
 
 var (
 	// MyName is the application
 	MyName = filepath.Base(os.Args[0])
 	// MyVersion is our version
-	MyVersion = "0.6.0"
+	MyVersion = "0.7.0"
 	// Author should be abvious
 	Author = "Ollivier Robert"
 
@@ -24,8 +22,7 @@ var (
 )
 
 type Context struct {
-	r   Resolver
-	snd *sandbox.Dir
+	r Resolver
 }
 
 func init() {
@@ -47,14 +44,7 @@ func main() {
 		return
 	}
 
-	snd, err := sandbox.New(MyName)
-	if err != nil {
-		log.Printf("Fatal: Can not create sandbox: %v", err)
-		return
-	}
-	defer snd.Cleanup()
-
-	ctx := &Context{RealResolver{}, snd}
+	ctx := &Context{RealResolver{}}
 
 	// Make it easier to sub it out
 	if fNoResolv {

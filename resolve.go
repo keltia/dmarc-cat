@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"net"
 )
 
@@ -15,9 +14,7 @@ func (NullResolver) LookupAddr(addr string) ([]string, error) {
 	return []string{addr}, nil
 }
 
-type RealResolver struct {
-	ctx context.Context
-}
+type RealResolver struct{}
 
 func (r RealResolver) LookupAddr(addr string) ([]string, error) {
 	return net.LookupAddr(addr)

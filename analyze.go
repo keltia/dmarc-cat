@@ -52,32 +52,34 @@ type row struct {
 	RSPF  string
 }
 
+func ResolveIP(ctx *Context, ip string) string {
+	ips, err := ctx.r.LookupAddr(ip)
+	if err != nil {
+		return ip
+	}
+	// XXX FIXME?
+	return ips[0]
+}
+
 // GatherRows extracts all IP and return the rows
 func GatherRows(ctx *Context, r Feedback) []row {
 	var rows []row
 
 	for _, report := range r.Records {
-		var ip0 string
 
-		ip, err := ctx.r.LookupAddr(report.Row.SourceIP.String())
-		if err != nil {
-			ip0 = report.Row.SourceIP.String()
-		} else {
-			ip0 = ip[0]
-		}
+		ip0 := ResolveIP(ctx, report.Row.SourceIP.String())
 		current := row{
 			IP:    ip0,
 			Count: report.Row.Count,
 			From:  report.Identifiers.HeaderFrom,
+			RSPF:  report.AuthResults.SPF.Result,
+			RDKIM: report.AuthResults.DKIM.Result,
 		}
 		if report.AuthResults.DKIM.Domain == "" {
 			current.RFrom = report.AuthResults.SPF.Domain
 		} else {
 			current.RFrom = report.AuthResults.DKIM.Domain
 		}
-		current.RSPF = report.AuthResults.SPF.Result
-		current.RDKIM = report.AuthResults.DKIM.Result
-
 		rows = append(rows, current)
 	}
 	return rows

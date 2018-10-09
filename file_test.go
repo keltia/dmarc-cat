@@ -3,17 +3,8 @@ package main
 import (
 	"testing"
 
-	"github.com/keltia/sandbox"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
-
-func Before(t *testing.T) *sandbox.Dir {
-	snd, err := sandbox.New("test")
-	require.NoError(t, err)
-
-	return snd
-}
 
 func TestCheckFilename(t *testing.T) {
 	td := []struct {
@@ -31,69 +22,53 @@ func TestCheckFilename(t *testing.T) {
 }
 
 func TestHandleSingleFile(t *testing.T) {
-	snd := Before(t)
-
-	ctx := &Context{NullResolver{}, nil}
+	ctx := &Context{NullResolver{}}
 
 	file := "empty.txt"
 	txt, err := HandleSingleFile(ctx, file)
 	assert.Error(t, err)
 	assert.Empty(t, txt)
-
-	snd.Cleanup()
 }
 
 func TestHandleSingleFile2(t *testing.T) {
-	snd := Before(t)
-
-	ctx := &Context{NullResolver{}, nil}
+	ctx := &Context{NullResolver{}}
 
 	file := "testdata/example.com!keltia.net!1538604008!1538690408.xml.gz"
 	txt, err := HandleSingleFile(ctx, file)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, txt)
-
-	snd.Cleanup()
 }
 
 func TestHandleSingleFile3(t *testing.T) {
-	snd := Before(t)
-
-	ctx := &Context{NullResolver{}, nil}
+	ctx := &Context{NullResolver{}}
 
 	file := "testdata/google.com!keltia.net!1538438400!1538524799.zip"
 	txt, err := HandleSingleFile(ctx, file)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, txt)
-
-	snd.Cleanup()
 }
 
 func TestHandleSingleFile_Verbose(t *testing.T) {
 	fVerbose = true
-	snd := Before(t)
 
-	ctx := &Context{NullResolver{}, nil}
+	ctx := &Context{NullResolver{}}
 	file := "empty.txt"
 	txt, err := HandleSingleFile(ctx, file)
 	assert.Error(t, err)
 	assert.Empty(t, txt)
 
-	snd.Cleanup()
 	fVerbose = false
 }
 
 func TestHandleSingleFile_Debug(t *testing.T) {
 	fDebug = true
-	snd := Before(t)
 
-	ctx := &Context{NullResolver{}, nil}
+	ctx := &Context{NullResolver{}}
 
 	file := "empty.txt"
 	txt, err := HandleSingleFile(ctx, file)
 	assert.Error(t, err)
 	assert.Empty(t, txt)
 
-	snd.Cleanup()
 	fDebug = false
 }
