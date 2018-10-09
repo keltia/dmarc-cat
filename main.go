@@ -6,8 +6,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-
-	"github.com/keltia/sandbox"
 )
 
 var (
@@ -24,8 +22,7 @@ var (
 )
 
 type Context struct {
-	r   Resolver
-	snd *sandbox.Dir
+	r Resolver
 }
 
 func init() {
@@ -47,14 +44,7 @@ func main() {
 		return
 	}
 
-	snd, err := sandbox.New(MyName)
-	if err != nil {
-		log.Printf("Fatal: Can not create sandbox: %v", err)
-		return
-	}
-	defer snd.Cleanup()
-
-	ctx := &Context{RealResolver{}, snd}
+	ctx := &Context{RealResolver{}}
 
 	// Make it easier to sub it out
 	if fNoResolv {

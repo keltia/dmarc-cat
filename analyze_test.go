@@ -10,20 +10,20 @@ import (
 )
 
 func TestAnalyze(t *testing.T) {
-	ctx := &Context{NullResolver{}, nil}
+	ctx := &Context{NullResolver{}}
 	s, err := Analyze(ctx, Feedback{})
 	assert.Error(t, err)
 	assert.Empty(t, s)
 }
 
 func TestGatherRows_Empty(t *testing.T) {
-	ctx := &Context{NullResolver{}, nil}
+	ctx := &Context{NullResolver{}}
 	r := GatherRows(ctx, Feedback{})
 	assert.Empty(t, r)
 }
 
 func TestGatherRows_Good(t *testing.T) {
-	ctx := &Context{NullResolver{}, nil}
+	ctx := &Context{NullResolver{}}
 	file := "testdata/example.com!keltia.net!1538604008!1538690408.xml"
 
 	a, err := NewArchive(file)
