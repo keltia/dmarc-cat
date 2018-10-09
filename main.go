@@ -21,6 +21,7 @@ var (
 	fVerbose  bool
 )
 
+// Context is passed around rather than being a global var/struct
 type Context struct {
 	r Resolver
 }
