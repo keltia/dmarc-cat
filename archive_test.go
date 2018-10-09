@@ -55,6 +55,7 @@ func TestPlain_Extract(t *testing.T) {
 	require.NotNil(t, a)
 
 	txt, err := a.Extract("")
+	assert.NoError(t, err)
 	assert.Equal(t, "this is a file\n", string(txt))
 }
 
