@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"net"
 	"text/template"
 	"time"
 
@@ -45,7 +44,7 @@ type headVars struct {
 
 // Single row
 type row struct {
-	IP    net.IP
+	IP    string
 	Count int
 	From  string
 	RFrom string
@@ -58,6 +57,14 @@ func GatherRows(ctx *Context, r Feedback) []row {
 	var rows []row
 
 	for _, report := range r.Records {
+		var ip0 string
+
+		ip, err := ctx.r.LookupAddr(report.Row.SourceIP.String())
+		if err != nil {
+			ip0 = report.Row.SourceIP.String()
+		} else {
+			ip0 = ip[0]
+		}
 		current := row{
 			IP:    ip0,
 			Count: report.Row.Count,
