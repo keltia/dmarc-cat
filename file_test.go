@@ -33,8 +33,10 @@ func TestCheckFilename(t *testing.T) {
 func TestHandleSingleFile(t *testing.T) {
 	snd := Before(t)
 
+	ctx := &Context{NullResolver{}, nil}
+
 	file := "empty.txt"
-	txt, err := HandleSingleFile(snd, file)
+	txt, err := HandleSingleFile(ctx, file)
 	assert.Error(t, err)
 	assert.Empty(t, txt)
 
@@ -44,8 +46,10 @@ func TestHandleSingleFile(t *testing.T) {
 func TestHandleSingleFile2(t *testing.T) {
 	snd := Before(t)
 
+	ctx := &Context{NullResolver{}, nil}
+
 	file := "testdata/example.com!keltia.net!1538604008!1538690408.xml.gz"
-	txt, err := HandleSingleFile(snd, file)
+	txt, err := HandleSingleFile(ctx, file)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, txt)
 
@@ -55,8 +59,10 @@ func TestHandleSingleFile2(t *testing.T) {
 func TestHandleSingleFile3(t *testing.T) {
 	snd := Before(t)
 
+	ctx := &Context{NullResolver{}, nil}
+
 	file := "testdata/google.com!keltia.net!1538438400!1538524799.zip"
-	txt, err := HandleSingleFile(snd, file)
+	txt, err := HandleSingleFile(ctx, file)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, txt)
 
@@ -67,8 +73,9 @@ func TestHandleSingleFile_Verbose(t *testing.T) {
 	fVerbose = true
 	snd := Before(t)
 
+	ctx := &Context{NullResolver{}, nil}
 	file := "empty.txt"
-	txt, err := HandleSingleFile(snd, file)
+	txt, err := HandleSingleFile(ctx, file)
 	assert.Error(t, err)
 	assert.Empty(t, txt)
 
@@ -80,8 +87,10 @@ func TestHandleSingleFile_Debug(t *testing.T) {
 	fDebug = true
 	snd := Before(t)
 
+	ctx := &Context{NullResolver{}, nil}
+
 	file := "empty.txt"
-	txt, err := HandleSingleFile(snd, file)
+	txt, err := HandleSingleFile(ctx, file)
 	assert.Error(t, err)
 	assert.Empty(t, txt)
 
