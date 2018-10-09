@@ -115,10 +115,6 @@ func TestZip_Extract3(t *testing.T) {
 	require.NotNil(t, a)
 	defer a.Close()
 
-	rh, err := ioutil.ReadFile("testdata/google.com!keltia.net!1538438400!1538524799.xml")
-	require.NoError(t, err)
-	require.NotEmpty(t, rh)
-
 	txt, err := a.Extract(".txt")
 	assert.Error(t, err)
 	assert.Empty(t, txt)
