@@ -25,6 +25,8 @@ Aside from the standard library, I use `github.com/intel/tfortools` to generate 
 
     go get -u github.com/intel/tfortools
 
+It also use my own module `github.com/keltia/archive` to handle the various archive types.
+
 ## Usage
 
 SYNOPSIS
@@ -48,7 +50,7 @@ IP            Count   From       RFrom      RDKIM   RSPF
 
 ## Tests
 
-Very incomplete for now.
+Getting close to 90% coverage.
 
 ## License
 

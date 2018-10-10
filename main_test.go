@@ -3,7 +3,39 @@ package main
 import (
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
+
+func TestSetup(t *testing.T) {
+	ctx := Setup([]string{})
+	assert.Nil(t, ctx)
+}
+
+func TestSetup2(t *testing.T) {
+	ctx := Setup([]string{"foo.zip"})
+	assert.NotNil(t, ctx)
+	assert.IsType(t, (*Context)(nil), ctx)
+}
+
+func TestSetup3(t *testing.T) {
+	fNoResolv = true
+	ctx := Setup([]string{"foo.zip"})
+	assert.NotNil(t, ctx)
+	assert.IsType(t, (*Context)(nil), ctx)
+	fNoResolv = false
+}
+
+func TestSetup4(t *testing.T) {
+	fVersion = true
+	ctx := Setup([]string{"foo.zip"})
+	assert.Nil(t, ctx)
+	fVersion = false
+}
+
+func TestVersion(t *testing.T) {
+	Version()
+}
 
 // XXX I'm not sure how to really test main() — os.Args() is global and not reset between calls
 
@@ -23,8 +55,21 @@ func TestMain_Noargs_Debug(t *testing.T) {
 	fDebug = false
 }
 
+func TestMain_Noargs_NoResolv(t *testing.T) {
+	os.Args = append(os.Args, "testdata/google.com!keltia.net!1538438400!1538524799.zip")
+
+	fNoResolv = true
+	main()
+	fNoResolv = false
+}
+
 func TestMain_GoodFile(t *testing.T) {
 	os.Args = append(os.Args, "testdata/google.com!keltia.net!1538438400!1538524799.zip")
+	main()
+}
+
+func TestMain_NoFile(t *testing.T) {
+	os.Args = append(os.Args, "/nonexistent")
 	main()
 }
 

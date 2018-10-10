@@ -42,8 +42,8 @@ type headVars struct {
 	Count       int
 }
 
-// Single row
-type row struct {
+// Entry representes a single entry
+type Entry struct {
 	IP    string
 	Count int
 	From  string
@@ -52,6 +52,7 @@ type row struct {
 	RSPF  string
 }
 
+// ResolveIP returns the first name associated with the IP
 func ResolveIP(ctx *Context, ip string) string {
 	ips, err := ctx.r.LookupAddr(ip)
 	if err != nil {
@@ -62,13 +63,13 @@ func ResolveIP(ctx *Context, ip string) string {
 }
 
 // GatherRows extracts all IP and return the rows
-func GatherRows(ctx *Context, r Feedback) []row {
-	var rows []row
+func GatherRows(ctx *Context, r Feedback) []Entry {
+	var rows []Entry
 
 	for _, report := range r.Records {
 
 		ip0 := ResolveIP(ctx, report.Row.SourceIP.String())
-		current := row{
+		current := Entry{
 			IP:    ip0,
 			Count: report.Row.Count,
 			From:  report.Identifiers.HeaderFrom,
