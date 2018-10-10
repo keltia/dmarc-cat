@@ -8,7 +8,7 @@ GOBIN=  ${GOPATH}/bin
 
 BIN=	dmarc-cat
 
-SRCS= analyze.go archive.go file.go main.go resolve.go types.go utils.go
+SRCS= analyze.go file.go main.go resolve.go types.go utils.go
 
 OPTS=	-ldflags="-s -w" -v
 
