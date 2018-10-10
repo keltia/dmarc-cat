@@ -26,6 +26,17 @@ func TestSetup3(t *testing.T) {
 	fNoResolv = false
 }
 
+func TestSetup4(t *testing.T) {
+	fVersion = true
+	ctx := Setup([]string{"foo.zip"})
+	assert.Nil(t, ctx)
+	fVersion = false
+}
+
+func TestVersion(t *testing.T) {
+	Version()
+}
+
 // XXX I'm not sure how to really test main() — os.Args() is global and not reset between calls
 
 func TestMain_Noargs(t *testing.T) {
