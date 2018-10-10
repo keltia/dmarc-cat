@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/keltia/archive"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -26,7 +27,7 @@ func TestGatherRows_Good(t *testing.T) {
 	ctx := &Context{NullResolver{}}
 	file := "testdata/example.com!keltia.net!1538604008!1538690408.xml"
 
-	a, err := NewArchive(file)
+	a, err := archive.New(file)
 	require.NoError(t, err)
 
 	body, err := a.Extract(".xml")

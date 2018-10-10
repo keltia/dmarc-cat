@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"regexp"
 
+	"github.com/keltia/archive"
 	"github.com/pkg/errors"
 )
 
@@ -35,7 +36,7 @@ func HandleSingleFile(ctx *Context, file string) (string, error) {
 		return "", errors.Wrapf(err, "Abs(%s)", file)
 	}
 
-	a, err := NewArchive(myfile)
+	a, err := archive.New(myfile)
 	if err != nil {
 		return "", errors.Wrap(err, "newarchive")
 	}
