@@ -33,7 +33,7 @@ func init() {
 	flag.BoolVar(&fDebug, "D", false, "Debug mode")
 	flag.BoolVar(&fNoResolv, "N", false, "Do not resolve IPs")
 	flag.BoolVar(&fVerbose, "v", false, "Verbose mode")
-	flag.BoolVar(&fVersion, "-version", false, "Display version")
+	flag.BoolVar(&fVersion, "version", false, "Display version")
 }
 
 func Version() {
@@ -72,7 +72,7 @@ func main() {
 	flag.Parse()
 
 	ctx := Setup(flag.Args())
-	if ctx != nil {
+	if ctx == nil {
 		return
 	}
 
