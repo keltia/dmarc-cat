@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/keltia/archive"
 )
 
 var (
@@ -34,8 +36,18 @@ func init() {
 	flag.BoolVar(&fVersion, "-version", false, "Display version")
 }
 
+func Version() {
+	fmt.Printf("%s version %s archive/%s\n", MyName, MyVersion, archive.Version())
+}
+
 // Setup creates our context and check stuff
 func Setup(a []string) *Context {
+	// Exist early if -version
+	if fVersion {
+		Version()
+		return nil
+	}
+
 	if fDebug {
 		fVerbose = true
 		debug("debug mode")
