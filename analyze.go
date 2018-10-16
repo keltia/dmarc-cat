@@ -24,7 +24,7 @@ Policy: p={{.Disposition}}; dkim={{.DKIM}}; spf={{.SPF}}
 Reports({{.Count}}):
 `
 
-	rowTmpl = `{{ table (sort . "Count" "dsc")}}`
+	rowTmpl = `{{ table (sort . %s)}}`
 )
 
 // My template vars
@@ -172,8 +172,9 @@ func Analyze(ctx *Context, r Feedback) (string, error) {
 		return "", errors.Wrapf(err, "error in template 'r'")
 	}
 
-	// Rows
-	err = tfortools.OutputToTemplate(&buf, "reports", rowTmpl, rows, nil)
+	// Generate our template
+	sortTmpl := fmt.Sprintf(rowTmpl, fSort)
+	err = tfortools.OutputToTemplate(&buf, "reports", sortTmpl, rows, nil)
 	if err != nil {
 		return "", errors.Wrapf(err, "error in template 'reports'")
 	}
