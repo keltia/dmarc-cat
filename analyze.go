@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"sync"
 	"text/template"
 	"time"
 
@@ -70,15 +69,12 @@ type IP struct {
 	Name string
 }
 
-func ParallelSolve(ctx *Context, iplist []IP) ([]IP, int) {
-	var lock sync.Mutex
-
+func ParallelSolve(ctx *Context, iplist []IP) []IP {
 	resolved := make([]IP, len(iplist))
 	pool := grpool.NewPool(ctx.jobs, len(iplist))
 	verbose("ParallelSolve with %d workers", ctx.jobs)
 	defer pool.Release()
 
-	n := 0
 	pool.WaitCount(len(iplist))
 	for i, e := range iplist {
 		current := e.IP
@@ -87,14 +83,11 @@ func ParallelSolve(ctx *Context, iplist []IP) ([]IP, int) {
 			defer pool.JobDone()
 
 			resolved[ind].Name = ResolveIP(ctx, current)
-			lock.Lock()
-			n++
-			lock.Unlock()
 		}
 	}
 	pool.WaitAll()
 
-	return resolved, n
+	return resolved
 }
 
 // GatherRows extracts all IP and return the rows
@@ -103,7 +96,6 @@ func GatherRows(ctx *Context, r Feedback) []Entry {
 		rows    []Entry
 		iplist  []IP
 		newlist []IP
-		n       int
 	)
 
 	ipslen := len(r.Records)
@@ -117,8 +109,8 @@ func GatherRows(ctx *Context, r Feedback) []Entry {
 		}
 
 		// Now we have a nice array
-		newlist, n = ParallelSolve(ctx, iplist)
-		verbose("Resolved %d IPs", n)
+		newlist = ParallelSolve(ctx, iplist)
+		verbose("Resolved %d IPs", ipslen)
 	} else {
 		newlist = make([]IP, ipslen)
 		// Get all IPs
