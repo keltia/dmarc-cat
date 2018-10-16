@@ -43,7 +43,7 @@ func init() {
 }
 
 func Version() {
-	fmt.Printf("%s version %s archive/%s\n", MyName, MyVersion, archive.Version())
+	fmt.Printf("%s version %s/j%d archive/%s\n", MyName, MyVersion, fJobs, archive.Version())
 }
 
 // Setup creates our context and check stuff
