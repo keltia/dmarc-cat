@@ -12,6 +12,9 @@ branches:
   - develop
 env:
   - GO111MODULE=on
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq libgpgme11 libgpgme11-dev libassuan-dev libassuan0 libgpg-error0 gnupg2
 script:
   - make
   - make test
