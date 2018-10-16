@@ -118,10 +118,15 @@ func GatherRows(ctx *Context, r Feedback) []Entry {
 		// Now we have a nice array
 		newlist, n = ParallelSolve(ctx, iplist)
 		verbose("Resolved %d IPs", n)
+	} else {
+		newlist = make([]IP, ipslen)
+		// Get all IPs
+		for i, report := range r.Records {
+			newlist[i] = IP{Name: report.Row.SourceIP.String()}
+		}
 	}
 
 	for i, report := range r.Records {
-
 		ip0 := newlist[i].Name
 		current := Entry{
 			IP:    ip0,
