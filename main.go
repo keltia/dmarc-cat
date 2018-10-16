@@ -15,7 +15,7 @@ var (
 	// MyName is the application
 	MyName = filepath.Base(os.Args[0])
 	// MyVersion is our version
-	MyVersion = "0.8.0"
+	MyVersion = "0.9.0"
 	// Author should be abvious
 	Author = "Ollivier Robert"
 
@@ -43,7 +43,7 @@ func init() {
 }
 
 func Version() {
-	fmt.Printf("%s version %s archive/%s\n", MyName, MyVersion, archive.Version())
+	fmt.Printf("%s version %s/j%d archive/%s\n", MyName, MyVersion, fJobs, archive.Version())
 }
 
 // Setup creates our context and check stuff

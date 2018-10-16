@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	reportTmpl = `{{.MyName}} {{.MyVersion}} by {{.Author}}
+	reportTmpl = `{{.MyName}} {{.MyVersion}}/j{{.Jobs}} by {{.Author}}
 
 Reporting by: {{.Org}} — {{.Email}}
 From {{.DateBegin}} to {{.DateEnd}}
@@ -31,6 +31,7 @@ Reports({{.Count}}):
 type headVars struct {
 	MyName      string
 	MyVersion   string
+	Jobs        string
 	Author      string
 	Org         string
 	Email       string
@@ -152,6 +153,7 @@ func Analyze(ctx *Context, r Feedback) (string, error) {
 	tmplvars := &headVars{
 		MyName:      MyName,
 		MyVersion:   MyVersion,
+		Jobs:        fmt.Sprintf("%d", fJobs),
 		Author:      Author,
 		Org:         r.Metadata.OrgName,
 		Email:       r.Metadata.Email,
