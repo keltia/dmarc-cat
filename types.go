@@ -17,6 +17,7 @@ type ReportMetadata struct {
 	ExtraContactInfo string    `xml:"extra_contact_info"`
 	ReportID         string    `xml:"report_id"`
 	Date             DateRange `xml:"date_range"`
+	Error            string    `xml:"error"`
 }
 
 // PolicyPublished found in DNS
@@ -27,13 +28,22 @@ type PolicyPublished struct {
 	P      string `xml:"p"`
 	SP     string `xml:"sp"`
 	Pct    int    `xml:"pct"`
+	Fo     string `xml:"fo"`
 }
 
 // PolicyEvaluated what was evaluated
 type PolicyEvaluated struct {
-	Disposition string `xml:"disposition"`
-	DKIM        string `xml:"dkim"`
-	SPF         string `xml:"spf"`
+	Disposition string               `xml:"disposition"`
+	DKIM        string               `xml:"dkim"`
+	SPF         string               `xml:"spf"`
+	Reason      PolicyOverrideReason `xml:"reason"`
+}
+
+// PolicyOverrideReason are the reasons that may affect DMARC disposition
+// or execution thereof
+type PolicyOverrideReason struct {
+	Type    string `xml:"type"`
+	Comment string `xml:"comment"`
 }
 
 // Row for each IP address
