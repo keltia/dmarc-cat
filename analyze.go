@@ -3,10 +3,12 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"sync"
 	"text/template"
 	"time"
 
 	"github.com/intel/tfortools"
+	"github.com/ivpusic/grpool"
 	"github.com/pkg/errors"
 )
 
@@ -22,7 +24,7 @@ Policy: p={{.Disposition}}; dkim={{.DKIM}}; spf={{.SPF}}
 Reports({{.Count}}):
 `
 
-	rowTmpl = `{{ table (sort . "Count" "dsc")}}`
+	rowTmpl = `{{ table (sort . %s)}}`
 )
 
 // My template vars
@@ -62,13 +64,65 @@ func ResolveIP(ctx *Context, ip string) string {
 	return ips[0]
 }
 
+type IP struct {
+	IP   string
+	Name string
+}
+
+func ParallelSolve(ctx *Context, iplist []IP) ([]IP, int) {
+	var lock sync.Mutex
+
+	resolved := make([]IP, len(iplist))
+	pool := grpool.NewPool(ctx.jobs, len(iplist))
+	verbose("ParallelSolve with %d workers", ctx.jobs)
+	defer pool.Release()
+
+	n := 0
+	pool.WaitCount(len(iplist))
+	for i, e := range iplist {
+		current := e.IP
+		ind := i
+		pool.JobQueue <- func() {
+			defer pool.JobDone()
+
+			resolved[ind].Name = ResolveIP(ctx, current)
+			lock.Lock()
+			n++
+			lock.Unlock()
+		}
+	}
+	pool.WaitAll()
+
+	return resolved, n
+}
+
 // GatherRows extracts all IP and return the rows
 func GatherRows(ctx *Context, r Feedback) []Entry {
-	var rows []Entry
+	var (
+		rows    []Entry
+		iplist  []IP
+		newlist []IP
+		n       int
+	)
 
-	for _, report := range r.Records {
+	ipslen := len(r.Records)
 
-		ip0 := ResolveIP(ctx, report.Row.SourceIP.String())
+	if !fNoResolv {
+		verbose("Resolving all %d IPs", ipslen)
+		iplist = make([]IP, ipslen)
+		// Get all IPs
+		for i, report := range r.Records {
+			iplist[i] = IP{IP: report.Row.SourceIP.String()}
+		}
+
+		// Now we have a nice array
+		newlist, n = ParallelSolve(ctx, iplist)
+		verbose("Resolved %d IPs", n)
+	}
+
+	for i, report := range r.Records {
+
+		ip0 := newlist[i].Name
 		current := Entry{
 			IP:    ip0,
 			Count: report.Row.Count,
@@ -118,8 +172,9 @@ func Analyze(ctx *Context, r Feedback) (string, error) {
 		return "", errors.Wrapf(err, "error in template 'r'")
 	}
 
-	// Rows
-	err = tfortools.OutputToTemplate(&buf, "reports", rowTmpl, rows, nil)
+	// Generate our template
+	sortTmpl := fmt.Sprintf(rowTmpl, fSort)
+	err = tfortools.OutputToTemplate(&buf, "reports", sortTmpl, rows, nil)
 	if err != nil {
 		return "", errors.Wrapf(err, "error in template 'reports'")
 	}
