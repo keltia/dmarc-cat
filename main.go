@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/keltia/archive"
 )
@@ -14,30 +15,35 @@ var (
 	// MyName is the application
 	MyName = filepath.Base(os.Args[0])
 	// MyVersion is our version
-	MyVersion = "0.8.0"
+	MyVersion = "0.9.0"
 	// Author should be abvious
 	Author = "Ollivier Robert"
 
 	fDebug    bool
+	fJobs     int
 	fNoResolv bool
+	fSort     string
 	fVerbose  bool
 	fVersion  bool
 )
 
 // Context is passed around rather than being a global var/struct
 type Context struct {
-	r Resolver
+	r    Resolver
+	jobs int
 }
 
 func init() {
 	flag.BoolVar(&fDebug, "D", false, "Debug mode")
 	flag.BoolVar(&fNoResolv, "N", false, "Do not resolve IPs")
+	flag.IntVar(&fJobs, "j", runtime.NumCPU(), "Parallel jobs")
+	flag.StringVar(&fSort, "S", `"Count" "dsc"`, "Sort results")
 	flag.BoolVar(&fVerbose, "v", false, "Verbose mode")
 	flag.BoolVar(&fVersion, "version", false, "Display version")
 }
 
 func Version() {
-	fmt.Printf("%s version %s archive/%s\n", MyName, MyVersion, archive.Version())
+	fmt.Printf("%s version %s/j%d archive/%s\n", MyName, MyVersion, fJobs, archive.Version())
 }
 
 // Setup creates our context and check stuff
@@ -58,7 +64,7 @@ func Setup(a []string) *Context {
 		return nil
 	}
 
-	ctx := &Context{RealResolver{}}
+	ctx := &Context{RealResolver{}, fJobs}
 
 	// Make it easier to sub it out
 	if fNoResolv {

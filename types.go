@@ -17,6 +17,7 @@ type ReportMetadata struct {
 	ExtraContactInfo string    `xml:"extra_contact_info"`
 	ReportID         string    `xml:"report_id"`
 	Date             DateRange `xml:"date_range"`
+	Errors           []string  `xml:"error"`
 }
 
 // PolicyPublished found in DNS
@@ -27,13 +28,22 @@ type PolicyPublished struct {
 	P      string `xml:"p"`
 	SP     string `xml:"sp"`
 	Pct    int    `xml:"pct"`
+	Fo     string `xml:"fo"`
 }
 
 // PolicyEvaluated what was evaluated
 type PolicyEvaluated struct {
-	Disposition string `xml:"disposition"`
-	DKIM        string `xml:"dkim"`
-	SPF         string `xml:"spf"`
+	Disposition string                 `xml:"disposition"`
+	DKIM        string                 `xml:"dkim"`
+	SPF         string                 `xml:"spf"`
+	Reasons     []PolicyOverrideReason `xml:"reason,omitempty"`
+}
+
+// PolicyOverrideReason are the reasons that may affect DMARC disposition
+// or execution thereof
+type PolicyOverrideReason struct {
+	Type    string `xml:"type"`
+	Comment string `xml:"comment"`
 }
 
 // Row for each IP address
@@ -45,13 +55,17 @@ type Row struct {
 
 // Identifiers headers checked
 type Identifiers struct {
-	HeaderFrom string `xml:"header_from"`
+	HeaderFrom   string `xml:"header_from"`
+	EnvelopeFrom string `xml:"envelope_from"`
+	EnvelopeTo   string `xml:"envelope_to,omitempty"`
 }
 
 // Result for each IP
 type Result struct {
-	Domain string `xml:"domain"`
-	Result string `xml:"result"`
+	Domain      string `xml:"domain"`
+	Selector    string `xml:"selector"`
+	Result      string `xml:"result"`
+	HumanResult string `xml:"human_result"`
 }
 
 // AuthResults for DKIM/SPF
@@ -69,6 +83,7 @@ type Record struct {
 
 // Feedback the report itself
 type Feedback struct {
+	Version  float32         `xml:"version"`
 	Metadata ReportMetadata  `xml:"report_metadata"`
 	Policy   PolicyPublished `xml:"policy_published"`
 	Records  []Record        `xml:"record"`

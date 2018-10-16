@@ -31,7 +31,7 @@ It also use my own module `github.com/keltia/archive` to handle the various arch
 
 SYNOPSIS
 ```
-darc-cat -hvD <zipfile|xmlfile>
+dmarc-cat -hvD <zipfile|xmlfile>
 
 Example:
 
