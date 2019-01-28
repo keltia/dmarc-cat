@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	reFileName = `^([\w\.]+)!([\w\.]+)!([\d]+)!([\d]+)(\.xml)*(\.(gz|zip))$`
+	reFileName = `^([\w\.]+)!([\w\.]+)!([\d]+)!([\d]+)(\.xml)*(\.(gz|zip))*$`
 )
 
 func checkFilename(file string) (ok bool) {
