@@ -14,6 +14,8 @@ func TestCheckFilename(t *testing.T) {
 		{"foo.bar", false},
 		{"example.com!keltia.net!1538604008!1538690408.xml.gz", true},
 		{"example.com!keltia.net!1538604008!1538690408.xml.gz", true},
+		{"example.com!keltia.net!1538604008!1538690408.xml", true},
+		{"google.com!keltia.net!1538438400!1538524799.zip", true},
 	}
 	for _, e := range td {
 		res := checkFilename(e.In)
@@ -43,6 +45,15 @@ func TestHandleSingleFile3(t *testing.T) {
 	ctx := &Context{NullResolver{}, 1}
 
 	file := "testdata/google.com!keltia.net!1538438400!1538524799.zip"
+	txt, err := HandleSingleFile(ctx, file)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, txt)
+}
+
+func TestHandleSingleFile4(t *testing.T) {
+	ctx := &Context{NullResolver{}, 1}
+
+	file := "testdata/example.com!keltia.net!1538604008!1538690408.xml"
 	txt, err := HandleSingleFile(ctx, file)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, txt)
