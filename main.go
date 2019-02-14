@@ -9,6 +9,7 @@ import (
 	"runtime"
 
 	"github.com/keltia/archive"
+	"github.com/pkg/errors"
 )
 
 var (
@@ -47,11 +48,11 @@ func Version() {
 }
 
 // Setup creates our context and check stuff
-func Setup(a []string) *Context {
+func Setup(a []string) (*Context, error) {
 	// Exist early if -version
 	if fVersion {
 		Version()
-		return nil
+		return nil, nil
 	}
 
 	if fDebug {
@@ -60,8 +61,7 @@ func Setup(a []string) *Context {
 	}
 
 	if len(a) < 1 {
-		log.Println("You must specify at least one file.")
-		return nil
+		return nil, fmt.Errorf("You must specify at least one file.")
 	}
 
 	ctx := &Context{RealResolver{}, fJobs}
@@ -71,22 +71,31 @@ func Setup(a []string) *Context {
 		ctx.r = NullResolver{}
 	}
 
-	return ctx
+	return ctx, nil
+}
+
+func realmain(args []string) error {
+	flag.Parse()
+
+	ctx, err := Setup(args)
+	if ctx == nil {
+		return errors.Wrap(err, "realmain")
+	}
+
+	file := args[0]
+	txt, err := HandleSingleFile(ctx, file)
+	if err != nil {
+		return errors.Wrapf(err, "file %s:", file)
+	}
+	fmt.Println(txt)
+	return nil
 }
 
 func main() {
+	// Parse CLI
 	flag.Parse()
 
-	ctx := Setup(flag.Args())
-	if ctx == nil {
-		return
+	if err := realmain(flag.Args()); err != nil {
+		log.Fatalf("Error: %v\n", err)
 	}
-
-	file := flag.Arg(0)
-	txt, err := HandleSingleFile(ctx, file)
-	if err != nil {
-		log.Printf("error handling %s: %v", file, err)
-		return
-	}
-	fmt.Println(txt)
 }
