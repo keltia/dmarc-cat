@@ -1,9 +1,13 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
+	"github.com/keltia/archive"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCheckFilename(t *testing.T) {
@@ -23,48 +27,78 @@ func TestCheckFilename(t *testing.T) {
 	}
 }
 
-func TestHandleSingleFile(t *testing.T) {
+func TestHandleZipFile(t *testing.T) {
 	ctx := &Context{NullResolver{}, 1}
 
-	file := "empty.txt"
-	txt, err := HandleSingleFile(ctx, file)
+	file := "testdata/google.com!eurocontrol.int!1538611200!1538697599.zip"
+
+	txt, err := HandleZipFile(ctx, file)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, txt)
+}
+
+func TestHandleSingleFile_Plain(t *testing.T) {
+	ctx := &Context{NullResolver{}, 1}
+
+	file := "testdata/empty.txt"
+	fh, err := os.Open(file)
+	require.NoError(t, err)
+	txt, err := HandleSingleFile(ctx, fh, archive.Ext2Type(filepath.Ext(file)))
 	assert.Error(t, err)
 	assert.Empty(t, txt)
 }
 
-func TestHandleSingleFile2(t *testing.T) {
+func TestHandleSingleFile_Gzip(t *testing.T) {
 	ctx := &Context{NullResolver{}, 1}
 
 	file := "testdata/example.com!keltia.net!1538604008!1538690408.xml.gz"
-	txt, err := HandleSingleFile(ctx, file)
+
+	fh, err := os.Open(file)
+	require.NoError(t, err)
+	txt, err := HandleSingleFile(ctx, fh, archive.Ext2Type(".gz"))
 	assert.NoError(t, err)
 	assert.NotEmpty(t, txt)
 }
 
-func TestHandleSingleFile3(t *testing.T) {
+func TestHandleSingleFile_Zip(t *testing.T) {
 	ctx := &Context{NullResolver{}, 1}
 
 	file := "testdata/google.com!keltia.net!1538438400!1538524799.zip"
-	txt, err := HandleSingleFile(ctx, file)
-	assert.NoError(t, err)
-	assert.NotEmpty(t, txt)
+
+	fh, err := os.Open(file)
+	require.NoError(t, err)
+	txt, err := HandleSingleFile(ctx, fh, archive.Ext2Type(filepath.Ext(file)))
+	assert.Error(t, err)
+	assert.Empty(t, txt)
 }
 
-func TestHandleSingleFile4(t *testing.T) {
+func TestHandleSingleFile_Xml(t *testing.T) {
 	ctx := &Context{NullResolver{}, 1}
 
+	fDebug = true
 	file := "testdata/example.com!keltia.net!1538604008!1538690408.xml"
-	txt, err := HandleSingleFile(ctx, file)
+
+	fh, err := os.Open(file)
+	require.NoError(t, err)
+
+	assert.Equal(t, archive.ArchivePlain, archive.Ext2Type(filepath.Ext(file)))
+
+	txt, err := HandleSingleFile(ctx, fh, archive.Ext2Type(filepath.Ext(file)))
 	assert.NoError(t, err)
 	assert.NotEmpty(t, txt)
+	fDebug = false
 }
 
 func TestHandleSingleFile_Verbose(t *testing.T) {
 	fVerbose = true
 
 	ctx := &Context{NullResolver{}, 1}
-	file := "empty.txt"
-	txt, err := HandleSingleFile(ctx, file)
+	file := "testdata/empty.txt"
+
+	fh, err := os.Open(file)
+	require.NoError(t, err)
+
+	txt, err := HandleSingleFile(ctx, fh, archive.Ext2Type(filepath.Ext(file)))
 	assert.Error(t, err)
 	assert.Empty(t, txt)
 
@@ -76,8 +110,12 @@ func TestHandleSingleFile_Debug(t *testing.T) {
 
 	ctx := &Context{NullResolver{}, 1}
 
-	file := "empty.txt"
-	txt, err := HandleSingleFile(ctx, file)
+	file := "testdata/empty.txt"
+
+	fh, err := os.Open(file)
+	require.NoError(t, err)
+
+	txt, err := HandleSingleFile(ctx, fh, archive.Ext2Type(filepath.Ext(file)))
 	assert.Error(t, err)
 	assert.Empty(t, txt)
 

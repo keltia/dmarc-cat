@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"encoding/xml"
-	"fmt"
+	"io"
+	"io/ioutil"
 	"path/filepath"
 	"regexp"
 
@@ -21,33 +23,67 @@ func checkFilename(file string) (ok bool) {
 	return re.MatchString(base)
 }
 
-// HandleSingleFile creates a tempdir and dispatch csv/zip files to handler.
-func HandleSingleFile(ctx *Context, file string) (string, error) {
-	var myfile string
+// HandleZipFile is here for zip files because archive.NewFromReader() does not work here
+func HandleZipFile(ctx *Context, file string) (string, error) {
+	debug("HandleZipFile")
 
-	debug("file=%s", file)
-	if !checkFilename(file) {
-		return "", fmt.Errorf("bad filename")
-	}
+	var body []byte
 
-	// We want the full path
-	myfile, err := filepath.Abs(file)
-	if err != nil {
-		return "", errors.Wrapf(err, "Abs(%s)", file)
-	}
+	a, err := archive.New(file)
+	if err == nil {
 
-	a, err := archive.New(myfile)
-	if err != nil {
-		return "", errors.Wrap(err, "newarchive")
-	}
-
-	body, err := a.Extract(".xml")
-	if err != nil {
-		return "", errors.Wrap(err, "extract")
+		body, err = a.Extract(".xml")
+		if err != nil {
+			return "", errors.Wrap(err, "extract")
+		}
+	} else {
+		// Got plain text (i.e. xml)
+		if body, err = ioutil.ReadFile(file); err != nil {
+			return "", errors.Wrap(err, "ReadFile")
+		}
 	}
 
 	debug("xml=%#v", body)
-	verbose("Analyzing %s", myfile)
+
+	var report Feedback
+
+	if err := xml.Unmarshal(body, &report); err != nil {
+		return "", errors.Wrap(err, "unmarshall")
+	}
+
+	debug("report=%v\n", report)
+
+	return Analyze(ctx, report)
+}
+
+// HandleSingleFile creates a tempdir and dispatch csv/zip files to handler.
+func HandleSingleFile(ctx *Context, r io.ReadCloser, typ int) (string, error) {
+	debug("HandleSingleFile")
+
+	var body []byte
+
+	debug("typ=%d", typ)
+	if typ == archive.ArchiveZip {
+		return "", errors.New("unsupported")
+	}
+
+	a, err := archive.NewFromReader(r, typ)
+	if err == nil {
+
+		debug("a=%#v", a)
+		body, err = a.Extract("")
+		if err != nil {
+			return "", errors.Wrap(err, "extract")
+		}
+	} else {
+		// Got plain text (i.e. xml)
+		buf := bytes.NewBuffer(body)
+		_, err := io.Copy(buf, r)
+		if err != nil {
+			return "", errors.Wrap(err, "copy")
+		}
+	}
+	debug("xml=%#v", body)
 
 	var report Feedback
 
