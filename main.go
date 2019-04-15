@@ -41,7 +41,7 @@ func init() {
 	flag.BoolVar(&fNoResolv, "N", false, "Do not resolve IPs")
 	flag.IntVar(&fJobs, "j", runtime.NumCPU(), "Parallel jobs")
 	flag.StringVar(&fSort, "S", `"Count" "dsc"`, "Sort results")
-	flag.StringVar(&fType, "t,type", "", "File type for stdin mode")
+	flag.StringVar(&fType, "t", "", "File type for stdin mode")
 	flag.BoolVar(&fVerbose, "v", false, "Verbose mode")
 	flag.BoolVar(&fVersion, "version", false, "Display version")
 }
