@@ -30,7 +30,7 @@ func TestCheckFilename(t *testing.T) {
 func TestHandleZipFile(t *testing.T) {
 	ctx := &Context{NullResolver{}, 1}
 
-	file := "testdata/google.com!eurocontrol.int!1538611200!1538697599.zip"
+	file := "testdata/google.com!keltia.net!1538438400!1538524799.zip"
 
 	txt, err := HandleZipFile(ctx, file)
 	assert.NoError(t, err)
