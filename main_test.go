@@ -41,6 +41,24 @@ func TestVersion(t *testing.T) {
 	Version()
 }
 
+func TestSelectInput_Bad(t *testing.T) {
+	_, err := SelectInput("-")
+	assert.Error(t, err)
+}
+
+func TestSelectInput_Good(t *testing.T) {
+	fType = ".xml"
+	r, err := SelectInput("-")
+	assert.NoError(t, err)
+	assert.EqualValues(t, os.Stdin, r)
+	fType = ""
+}
+
+func TestSelectInput_Badfn(t *testing.T) {
+	_, err := SelectInput("/testdata/google.com!keltia.net!1538438400!1538524798.xml")
+	assert.Error(t, err)
+}
+
 // realmain() is the thing now
 func TestMain_Noargs(t *testing.T) {
 	assert.Error(t, realmain([]string{}))
@@ -59,24 +77,33 @@ func TestMain_Noargs_Debug(t *testing.T) {
 }
 
 func TestMain_Noargs_NoResolv(t *testing.T) {
-	os.Args = append(os.Args, "testdata/google.com!keltia.net!1538438400!1538524799.zip")
-
 	fNoResolv = true
-	main()
+	r := realmain([]string{"testdata/google.com!keltia.net!1538438400!1538524799.xml"})
 	fNoResolv = false
+	assert.Empty(t, r)
+}
+
+func TestRealmain_GoodFile(t *testing.T) {
+	r := realmain([]string{"testdata/google.com!keltia.net!1538438400!1538524799.xml"})
+	assert.Empty(t, r)
+}
+
+func TestRealmain_GoodFile1(t *testing.T) {
+	r := realmain([]string{"testdata/google.com!keltia.net!1538438400!1538524799.zip"})
+	assert.Empty(t, r)
+}
+
+func TestRealmain_NoFile(t *testing.T) {
+	r := realmain([]string{"/nonexistent"})
+	assert.NotEmpty(t, r)
+}
+
+func TestMain_EmptyArg(t *testing.T) {
+	r := realmain([]string{"foo"})
+	assert.NotEmpty(t, r)
 }
 
 func TestMain_GoodFile(t *testing.T) {
 	os.Args = append(os.Args, "testdata/google.com!keltia.net!1538438400!1538524799.zip")
-	main()
-}
-
-func TestMain_NoFile(t *testing.T) {
-	os.Args = append(os.Args, "/nonexistent")
-	main()
-}
-
-func TestMain_EmptyArg(t *testing.T) {
-	os.Args = append(os.Args, "foo")
 	main()
 }
