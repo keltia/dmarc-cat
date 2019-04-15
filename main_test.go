@@ -8,28 +8,32 @@ import (
 )
 
 func TestSetup(t *testing.T) {
-	ctx := Setup([]string{})
+	ctx, err := Setup([]string{})
 	assert.Nil(t, ctx)
+	assert.Error(t, err)
 }
 
 func TestSetup2(t *testing.T) {
-	ctx := Setup([]string{"foo.zip"})
+	ctx, err := Setup([]string{"foo.zip"})
 	assert.NotNil(t, ctx)
+	assert.NoError(t, err)
 	assert.IsType(t, (*Context)(nil), ctx)
 }
 
 func TestSetup3(t *testing.T) {
 	fNoResolv = true
-	ctx := Setup([]string{"foo.zip"})
+	ctx, err := Setup([]string{"foo.zip"})
 	assert.NotNil(t, ctx)
+	assert.NoError(t, err)
 	assert.IsType(t, (*Context)(nil), ctx)
 	fNoResolv = false
 }
 
 func TestSetup4(t *testing.T) {
 	fVersion = true
-	ctx := Setup([]string{"foo.zip"})
+	ctx, err := Setup([]string{"foo.zip"})
 	assert.Nil(t, ctx)
+	assert.NoError(t, err)
 	fVersion = false
 }
 
@@ -37,21 +41,20 @@ func TestVersion(t *testing.T) {
 	Version()
 }
 
-// XXX I'm not sure how to really test main() — os.Args() is global and not reset between calls
-
+// realmain() is the thing now
 func TestMain_Noargs(t *testing.T) {
-	main()
+	assert.Error(t, realmain([]string{}))
 }
 
 func TestMain_Noargs_Verbose(t *testing.T) {
 	fVerbose = true
-	main()
+	assert.Error(t, realmain([]string{}))
 	fVerbose = false
 }
 
 func TestMain_Noargs_Debug(t *testing.T) {
 	fDebug = true
-	main()
+	assert.Error(t, realmain([]string{}))
 	fDebug = false
 }
 

@@ -3,19 +3,21 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
 	"runtime"
 
 	"github.com/keltia/archive"
+	"github.com/pkg/errors"
 )
 
 var (
 	// MyName is the application
 	MyName = filepath.Base(os.Args[0])
 	// MyVersion is our version
-	MyVersion = "0.9.2"
+	MyVersion = "0.10.0"
 	// Author should be abvious
 	Author = "Ollivier Robert"
 
@@ -23,6 +25,7 @@ var (
 	fJobs     int
 	fNoResolv bool
 	fSort     string
+	fType     string
 	fVerbose  bool
 	fVersion  bool
 )
@@ -38,6 +41,7 @@ func init() {
 	flag.BoolVar(&fNoResolv, "N", false, "Do not resolve IPs")
 	flag.IntVar(&fJobs, "j", runtime.NumCPU(), "Parallel jobs")
 	flag.StringVar(&fSort, "S", `"Count" "dsc"`, "Sort results")
+	flag.StringVar(&fType, "t,type", "", "File type for stdin mode")
 	flag.BoolVar(&fVerbose, "v", false, "Verbose mode")
 	flag.BoolVar(&fVersion, "version", false, "Display version")
 }
@@ -47,11 +51,11 @@ func Version() {
 }
 
 // Setup creates our context and check stuff
-func Setup(a []string) *Context {
+func Setup(a []string) (*Context, error) {
 	// Exist early if -version
 	if fVersion {
 		Version()
-		return nil
+		return nil, nil
 	}
 
 	if fDebug {
@@ -60,8 +64,7 @@ func Setup(a []string) *Context {
 	}
 
 	if len(a) < 1 {
-		log.Println("You must specify at least one file.")
-		return nil
+		return nil, fmt.Errorf("You must specify at least one file.")
 	}
 
 	ctx := &Context{RealResolver{}, fJobs}
@@ -71,22 +74,79 @@ func Setup(a []string) *Context {
 		ctx.r = NullResolver{}
 	}
 
-	return ctx
+	return ctx, nil
+}
+
+func SelectInput(file string) (io.ReadCloser, error) {
+	debug("file=%s", file)
+	debug("file=%s", file)
+
+	if file == "-" {
+		if fType == "" {
+			return nil, errors.New("Wrong file type, use -t")
+		}
+		return os.Stdin, nil
+	}
+
+	// We have a filename
+	if !checkFilename(file) {
+		return nil, errors.New("bad filename")
+	}
+
+	// We want the full path
+	myfile, err := filepath.Abs(file)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Abs(%s)", file)
+	}
+
+	return os.Open(myfile)
+}
+
+func realmain(args []string) error {
+	flag.Parse()
+
+	ctx, err := Setup(args)
+	if ctx == nil {
+		return errors.Wrap(err, "realmain")
+	}
+
+	var txt string
+
+	// Look for input file or stdin/"-"
+	file := args[0]
+
+	verbose("Analyzing %s", file)
+
+	if filepath.Ext(file) == ".zip" ||
+		filepath.Ext(file) == ".ZIP" {
+
+		txt, err = HandleZipFile(ctx, file)
+		if err != nil {
+			return errors.Wrapf(err, "file %s:", file)
+		}
+	} else {
+		in, err := SelectInput(file)
+		if err != nil {
+			return errors.Wrap(err, "SelectInput")
+		}
+		defer in.Close()
+
+		typ := archive.Ext2Type(fType)
+
+		txt, err = HandleSingleFile(ctx, in, typ)
+		if err != nil {
+			return errors.Wrapf(err, "file %s:", file)
+		}
+	}
+	fmt.Println(txt)
+	return nil
 }
 
 func main() {
+	// Parse CLI
 	flag.Parse()
 
-	ctx := Setup(flag.Args())
-	if ctx == nil {
-		return
+	if err := realmain(flag.Args()); err != nil {
+		log.Fatalf("Error: %v\n", err)
 	}
-
-	file := flag.Arg(0)
-	txt, err := HandleSingleFile(ctx, file)
-	if err != nil {
-		log.Printf("error handling %s: %v", file, err)
-		return
-	}
-	fmt.Println(txt)
 }
