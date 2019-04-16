@@ -129,6 +129,47 @@ func TestHandleSingleFile_Xml(t *testing.T) {
 	fDebug = false
 }
 
+func TestHandleSingleFile_Null(t *testing.T) {
+	ctx := &Context{NullResolver{}, 1}
+
+	file := "/dev/null"
+
+	fh, err := os.Open(file)
+	require.NoError(t, err)
+
+	assert.Equal(t, archive.ArchivePlain, archive.Ext2Type(filepath.Ext(file)))
+
+	txt, err := HandleSingleFile(ctx, fh, archive.Ext2Type(filepath.Ext(file)))
+	assert.Error(t, err)
+	assert.Empty(t, txt)
+}
+
+func TestHandleSingleFile_Txt(t *testing.T) {
+	ctx := &Context{NullResolver{}, 1}
+
+	file := "testdata/bad.xml"
+
+	fh, err := os.Open(file)
+	require.NoError(t, err)
+
+	txt, err := HandleSingleFile(ctx, fh, 255)
+	assert.Error(t, err)
+	assert.Empty(t, txt)
+}
+
+func TestHandleSingleFile_TxtNull(t *testing.T) {
+	ctx := &Context{NullResolver{}, 1}
+
+	file := "/dev/null"
+
+	fh, err := os.Open(file)
+	require.NoError(t, err)
+
+	txt, err := HandleSingleFile(ctx, fh, 255)
+	assert.Error(t, err)
+	assert.Empty(t, txt)
+}
+
 func TestHandleSingleFile_Verbose(t *testing.T) {
 	fVerbose = true
 
