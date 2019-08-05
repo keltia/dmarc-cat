@@ -47,7 +47,7 @@ func HandleZipFile(ctx *Context, file string) (string, error) {
 		}
 	}
 
-	debug("xml=%#v", body)
+	debug("xml=%s", string(body))
 
 	var report Feedback
 
