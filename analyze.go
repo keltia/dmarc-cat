@@ -3,11 +3,11 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"sync"
 	"text/template"
 	"time"
 
 	"github.com/intel/tfortools"
-	"github.com/ivpusic/grpool"
 	"github.com/pkg/errors"
 )
 
@@ -54,38 +54,52 @@ type Entry struct {
 	RSPF  string
 }
 
-// ResolveIP returns the first name associated with the IP
-func ResolveIP(ctx *Context, ip string) string {
-	ips, err := ctx.r.LookupAddr(ip)
-	if err != nil {
-		return ip
-	}
-	// XXX FIXME?
-	return ips[0]
-}
-
 type IP struct {
 	IP   string
 	Name string
 }
 
 func ParallelSolve(ctx *Context, iplist []IP) []IP {
-	resolved := make([]IP, len(iplist))
-	pool := grpool.NewPool(ctx.jobs, len(iplist))
 	verbose("ParallelSolve with %d workers", ctx.jobs)
-	defer pool.Release()
 
-	pool.WaitCount(len(iplist))
-	for i, e := range iplist {
-		current := e.IP
-		ind := i
-		pool.JobQueue <- func() {
-			defer pool.JobDone()
+	var lock sync.Mutex
 
-			resolved[ind].Name = ResolveIP(ctx, current)
-		}
+	wg := &sync.WaitGroup{}
+	queue := make(chan IP, ctx.jobs)
+
+	resolved := iplist
+
+	ind := 0
+
+	for i := 0; i < ctx.jobs; i++ {
+		wg.Add(1)
+
+		go func(n int, wg *sync.WaitGroup) {
+			defer wg.Done()
+
+			var name string
+
+			for e := range queue {
+				ips, err := ctx.r.LookupAddr(e.IP)
+				if err != nil {
+					name = e.IP
+				} else {
+					name = ips[0]
+				}
+
+				lock.Lock()
+				resolved[ind].Name = name
+				lock.Unlock()
+			}
+		}(i, wg)
 	}
-	pool.WaitAll()
+
+	for _, q := range iplist {
+		queue <- q
+	}
+
+	close(queue)
+	wg.Wait()
 
 	return resolved
 }
