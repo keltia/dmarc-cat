@@ -16,11 +16,15 @@ const (
 	reFileName = `^([\w\.]+)!([\w\.]+)!([\d]+)!([\d]+)(\.xml)*(\.(gz|zip))*$`
 )
 
+var reFN *regexp.Regexp
+
+func init() {
+	reFN = regexp.MustCompile(reFileName)
+}
+
 func checkFilename(file string) (ok bool) {
 	base := filepath.Base(file)
-	re := regexp.MustCompile(reFileName)
-
-	return re.MatchString(base)
+	return reFN.MatchString(base)
 }
 
 // HandleZipFile is here for zip files because archive.NewFromReader() does not work here
@@ -43,7 +47,7 @@ func HandleZipFile(ctx *Context, file string) (string, error) {
 		}
 	}
 
-	debug("xml=%#v", body)
+	debug("xml=%s", string(body))
 
 	var report Feedback
 

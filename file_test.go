@@ -37,6 +37,46 @@ func TestHandleZipFile(t *testing.T) {
 	assert.NotEmpty(t, txt)
 }
 
+func TestHandleZipFile_Xml(t *testing.T) {
+	ctx := &Context{NullResolver{}, 1}
+
+	file := "testdata/example.com!keltia.net!1538604008!1538690408.xml"
+
+	txt, err := HandleZipFile(ctx, file)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, txt)
+}
+
+func TestHandleZipFile_Bad(t *testing.T) {
+	ctx := &Context{NullResolver{}, 1}
+
+	file := "testdata/notempty.zip"
+
+	txt, err := HandleZipFile(ctx, file)
+	assert.Error(t, err)
+	assert.Empty(t, txt)
+}
+
+func TestHandleZipFile_Bad1(t *testing.T) {
+	ctx := &Context{NullResolver{}, 1}
+
+	file := "testdata/bad.zip"
+
+	txt, err := HandleZipFile(ctx, file)
+	assert.Error(t, err)
+	assert.Empty(t, txt)
+}
+
+func TestHandleZipFile_None(t *testing.T) {
+	ctx := &Context{NullResolver{}, 1}
+
+	file := "/nonexistent"
+
+	txt, err := HandleZipFile(ctx, file)
+	assert.Error(t, err)
+	assert.Empty(t, txt)
+}
+
 func TestHandleSingleFile_Plain(t *testing.T) {
 	ctx := &Context{NullResolver{}, 1}
 
@@ -87,6 +127,47 @@ func TestHandleSingleFile_Xml(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotEmpty(t, txt)
 	fDebug = false
+}
+
+func TestHandleSingleFile_Null(t *testing.T) {
+	ctx := &Context{NullResolver{}, 1}
+
+	file := "/dev/null"
+
+	fh, err := os.Open(file)
+	require.NoError(t, err)
+
+	assert.Equal(t, archive.ArchivePlain, archive.Ext2Type(filepath.Ext(file)))
+
+	txt, err := HandleSingleFile(ctx, fh, archive.Ext2Type(filepath.Ext(file)))
+	assert.Error(t, err)
+	assert.Empty(t, txt)
+}
+
+func TestHandleSingleFile_Txt(t *testing.T) {
+	ctx := &Context{NullResolver{}, 1}
+
+	file := "testdata/bad.xml"
+
+	fh, err := os.Open(file)
+	require.NoError(t, err)
+
+	txt, err := HandleSingleFile(ctx, fh, 255)
+	assert.Error(t, err)
+	assert.Empty(t, txt)
+}
+
+func TestHandleSingleFile_TxtNull(t *testing.T) {
+	ctx := &Context{NullResolver{}, 1}
+
+	file := "/dev/null"
+
+	fh, err := os.Open(file)
+	require.NoError(t, err)
+
+	txt, err := HandleSingleFile(ctx, fh, 255)
+	assert.Error(t, err)
+	assert.Empty(t, txt)
 }
 
 func TestHandleSingleFile_Verbose(t *testing.T) {

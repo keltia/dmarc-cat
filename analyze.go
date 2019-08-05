@@ -3,11 +3,11 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"sync"
 	"text/template"
 	"time"
 
 	"github.com/intel/tfortools"
-	"github.com/ivpusic/grpool"
 	"github.com/pkg/errors"
 )
 
@@ -54,38 +54,54 @@ type Entry struct {
 	RSPF  string
 }
 
-// ResolveIP returns the first name associated with the IP
-func ResolveIP(ctx *Context, ip string) string {
-	ips, err := ctx.r.LookupAddr(ip)
-	if err != nil {
-		return ip
-	}
-	// XXX FIXME?
-	return ips[0]
-}
-
 type IP struct {
 	IP   string
 	Name string
 }
 
 func ParallelSolve(ctx *Context, iplist []IP) []IP {
-	resolved := make([]IP, len(iplist))
-	pool := grpool.NewPool(ctx.jobs, len(iplist))
 	verbose("ParallelSolve with %d workers", ctx.jobs)
-	defer pool.Release()
 
-	pool.WaitCount(len(iplist))
-	for i, e := range iplist {
-		current := e.IP
-		ind := i
-		pool.JobQueue <- func() {
-			defer pool.JobDone()
+	var lock sync.Mutex
 
-			resolved[ind].Name = ResolveIP(ctx, current)
-		}
+	wg := &sync.WaitGroup{}
+	queue := make(chan IP, ctx.jobs)
+
+	resolved := iplist
+
+	ind := 0
+
+	for i := 0; i < ctx.jobs; i++ {
+		wg.Add(1)
+
+		debug("setting up w%d", i)
+		go func(n int, wg *sync.WaitGroup) {
+			defer wg.Done()
+
+			var name string
+
+			for e := range queue {
+				ips, err := ctx.r.LookupAddr(e.IP)
+				if err != nil {
+					name = e.IP
+				} else {
+					name = ips[0]
+				}
+
+				lock.Lock()
+				resolved[ind].Name = name
+				lock.Unlock()
+				debug("w%d - ip=%s - name=%s", n, e.IP, name)
+			}
+		}(i, wg)
 	}
-	pool.WaitAll()
+
+	for _, q := range iplist {
+		queue <- q
+	}
+
+	close(queue)
+	wg.Wait()
 
 	return resolved
 }
@@ -100,24 +116,20 @@ func GatherRows(ctx *Context, r Feedback) []Entry {
 
 	ipslen := len(r.Records)
 
-	if !fNoResolv {
-		verbose("Resolving all %d IPs", ipslen)
-		iplist = make([]IP, ipslen)
-		// Get all IPs
-		for i, report := range r.Records {
-			iplist[i] = IP{IP: report.Row.SourceIP.String()}
-		}
-
-		// Now we have a nice array
-		newlist = ParallelSolve(ctx, iplist)
-		verbose("Resolved %d IPs", ipslen)
-	} else {
-		newlist = make([]IP, ipslen)
-		// Get all IPs
-		for i, report := range r.Records {
-			newlist[i] = IP{Name: report.Row.SourceIP.String()}
-		}
+	if fNoResolv {
+		ctx.r = NullResolver{}
 	}
+
+	verbose("Resolving all %d IPs", ipslen)
+	iplist = make([]IP, ipslen)
+	// Get all IPs
+	for i, report := range r.Records {
+		iplist[i] = IP{IP: report.Row.SourceIP.String()}
+	}
+
+	// Now we have a nice array
+	newlist = ParallelSolve(ctx, iplist)
+	verbose("Resolved %d IPs", ipslen)
 
 	for i, report := range r.Records {
 		ip0 := newlist[i].Name

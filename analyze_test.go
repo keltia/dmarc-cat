@@ -45,18 +45,29 @@ func TestGatherRows_Good(t *testing.T) {
 type ErrResolver struct{}
 
 func (ErrResolver) LookupAddr(ip string) ([]string, error) {
-	return []string{}, fmt.Errorf("fake error")
+	return []string{"BAD"}, fmt.Errorf("fake error")
 }
 
-func TestResolveIP_Error(t *testing.T) {
-	ctx := &Context{r: ErrResolver{}}
-	ips := ResolveIP(ctx, "8.8.8.8")
-	assert.Equal(t, "8.8.8.8", ips)
-}
+func TestParallelSolve_Error(t *testing.T) {
+	ctx := &Context{r: ErrResolver{}, jobs: 1}
 
-func TestResolveIP_Good(t *testing.T) {
-	ctx := &Context{r: ErrResolver{}}
-	ips := ResolveIP(ctx, "8.8.8.8")
+	td := []IP{
+		{IP: "8.8.8.8", Name: "BAD"},
+		{IP: "8.8.4.4", Name: "BAD"},
+	}
+	ips := ParallelSolve(ctx, td)
 	assert.NotEmpty(t, ips)
-	assert.Equal(t, "8.8.8.8", ips)
+	assert.EqualValues(t, td, ips)
+}
+
+func TestParallelSolve_Good(t *testing.T) {
+	ctx := &Context{r: NullResolver{}, jobs: 1}
+
+	td := []IP{
+		{IP: "8.8.8.8", Name: "8.8.8.8"},
+		{IP: "8.8.4.4", Name: "8.8.4.4"},
+	}
+	ips := ParallelSolve(ctx, td)
+	assert.NotEmpty(t, ips)
+	assert.EqualValues(t, td, ips)
 }
