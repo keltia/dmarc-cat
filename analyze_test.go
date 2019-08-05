@@ -61,7 +61,7 @@ func TestParallelSolve_Error(t *testing.T) {
 }
 
 func TestParallelSolve_Good(t *testing.T) {
-	ctx := &Context{r: FakeResolver{}, jobs: 1}
+	ctx := &Context{r: NullResolver{}, jobs: 1}
 
 	td := []IP{
 		{IP: "8.8.8.8", Name: "8.8.8.8"},
