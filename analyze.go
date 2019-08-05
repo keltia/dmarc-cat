@@ -104,6 +104,13 @@ func ParallelSolve(ctx *Context, iplist []IP) []IP {
 	return resolved
 }
 
+// If fNoResolv, use this simple & fake resolver
+type FakeResolver struct{}
+
+func (FakeResolver) LookupAddr(ip string) ([]string, error) {
+	return []string{ip}, nil
+}
+
 // GatherRows extracts all IP and return the rows
 func GatherRows(ctx *Context, r Feedback) []Entry {
 	var (
@@ -114,24 +121,20 @@ func GatherRows(ctx *Context, r Feedback) []Entry {
 
 	ipslen := len(r.Records)
 
-	if !fNoResolv {
-		verbose("Resolving all %d IPs", ipslen)
-		iplist = make([]IP, ipslen)
-		// Get all IPs
-		for i, report := range r.Records {
-			iplist[i] = IP{IP: report.Row.SourceIP.String()}
-		}
-
-		// Now we have a nice array
-		newlist = ParallelSolve(ctx, iplist)
-		verbose("Resolved %d IPs", ipslen)
-	} else {
-		newlist = make([]IP, ipslen)
-		// Get all IPs
-		for i, report := range r.Records {
-			newlist[i] = IP{Name: report.Row.SourceIP.String()}
-		}
+	if fNoResolv {
+		ctx.r = FakeResolver{}
 	}
+
+	verbose("Resolving all %d IPs", ipslen)
+	iplist = make([]IP, ipslen)
+	// Get all IPs
+	for i, report := range r.Records {
+		iplist[i] = IP{IP: report.Row.SourceIP.String()}
+	}
+
+	// Now we have a nice array
+	newlist = ParallelSolve(ctx, iplist)
+	verbose("Resolved %d IPs", ipslen)
 
 	for i, report := range r.Records {
 		ip0 := newlist[i].Name
