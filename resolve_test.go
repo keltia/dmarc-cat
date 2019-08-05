@@ -19,5 +19,5 @@ func TestRealResolver_LookupAddr(t *testing.T) {
 
 	resp, err := r.LookupAddr("8.8.8.8")
 	assert.NoError(t, err)
-	assert.Equal(t, []string{"google-public-dns-a.google.com."}, resp)
+	assert.Equal(t, []string{"dns.google."}, resp)
 }
