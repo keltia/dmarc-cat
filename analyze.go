@@ -116,10 +116,6 @@ func GatherRows(ctx *Context, r Feedback) []Entry {
 
 	ipslen := len(r.Records)
 
-	if fNoResolv {
-		ctx.r = NullResolver{}
-	}
-
 	verbose("Resolving all %d IPs", ipslen)
 	iplist = make([]IP, ipslen)
 	// Get all IPs
