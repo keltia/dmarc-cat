@@ -74,6 +74,7 @@ func ParallelSolve(ctx *Context, iplist []IP) []IP {
 	for i := 0; i < ctx.jobs; i++ {
 		wg.Add(1)
 
+		debug("setting up w%d", i)
 		go func(n int, wg *sync.WaitGroup) {
 			defer wg.Done()
 
@@ -90,6 +91,7 @@ func ParallelSolve(ctx *Context, iplist []IP) []IP {
 				lock.Lock()
 				resolved[ind].Name = name
 				lock.Unlock()
+				debug("w%d - ip=%s - name=%s", n, e.IP, name)
 			}
 		}(i, wg)
 	}
