@@ -18,7 +18,7 @@ var (
 	MyName = filepath.Base(os.Args[0])
 	// MyVersion is our version
 	MyVersion = "0.10.0"
-	// Author should be abvious
+	// Author should be obvious
 	Author = "Ollivier Robert"
 
 	fDebug    bool
