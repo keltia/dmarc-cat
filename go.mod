@@ -7,3 +7,5 @@ require (
 	github.com/proglottis/gpgme v0.0.0-20190226023825-8e0937a489db // indirect
 	github.com/stretchr/testify v1.3.0
 )
+
+go 1.13
