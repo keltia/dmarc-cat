@@ -17,7 +17,9 @@ As with many Go utilities, a simple
 
     go get github.com/keltia/dmarc-cat
 
-is enough to fetch, build and install.
+is enough to fetch, build and install.  On some systems you may need to add some environment variables to enable the Go and C compilers to find the `gpgme` include files and libraries.
+
+    CGO_CFLAGS="-I/usr/local/include" CGO_LDFLAGS="-L/usr/local/lib" go get ...
 
 ## Dependencies
 
