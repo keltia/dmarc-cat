@@ -79,7 +79,6 @@ func Setup(a []string) (*Context, error) {
 
 func SelectInput(file string) (io.ReadCloser, error) {
 	debug("file=%s", file)
-	debug("file=%s", file)
 
 	if file == "-" {
 		if fType == "" {
