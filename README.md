@@ -29,6 +29,8 @@ Aside from the standard library, I use `github.com/intel/tfortools` to generate 
 
 It also use my own module `github.com/keltia/archive` to handle the various archive types.
 
+If you use Go modules, it should all work automatically.
+
 ## Usage
 
 SYNOPSIS
