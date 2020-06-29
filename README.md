@@ -17,7 +17,9 @@ As with many Go utilities, a simple
 
     go get github.com/keltia/dmarc-cat
 
-is enough to fetch, build and install.
+is enough to fetch, build and install.  On some systems you may need to add some environment variables to enable the Go and C compilers to find the `gpgme` include files and libraries.
+
+    CGO_CFLAGS="-I/usr/local/include" CGO_LDFLAGS="-L/usr/local/lib" go get ...
 
 ## Dependencies
 
@@ -26,6 +28,8 @@ Aside from the standard library, I use `github.com/intel/tfortools` to generate 
     go get -u github.com/intel/tfortools
 
 It also use my own module `github.com/keltia/archive` to handle the various archive types.
+
+If you use Go modules, it should all work automatically.
 
 ## Usage
 

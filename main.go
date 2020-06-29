@@ -17,7 +17,7 @@ var (
 	// MyName is the application
 	MyName = filepath.Base(os.Args[0])
 	// MyVersion is our version
-	MyVersion = "0.12.0,parallel"
+	MyVersion = "0.13.0,parallel"
 	// Author should be obvious
 	Author = "Ollivier Robert"
 
@@ -78,7 +78,6 @@ func Setup(a []string) (*Context, error) {
 }
 
 func SelectInput(file string) (io.ReadCloser, error) {
-	debug("file=%s", file)
 	debug("file=%s", file)
 
 	if file == "-" {

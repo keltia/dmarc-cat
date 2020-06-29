@@ -12,8 +12,15 @@ import (
 	"github.com/pkg/errors"
 )
 
+/* cf. https://tools.ietf.org/html/rfc7489#section-7.2.1.1
+
+filename = receiver "!" policy-domain "!" begin-timestamp
+            "!" end-timestamp [ "!" unique-id ] "." extension
+
+unique-id = 1*(ALPHA / DIGIT)
+*/
 const (
-	reFileName = `^([\w\.]+)!([\w\.]+)!([\d]+)!([\d]+)(\.xml)*(\.(gz|zip))*$`
+	reFileName = `^([\S\.]+)!([\S\.]+)!([\d]+)!([\d]+)(![[:alnum:]]+)*(\.\S+)(\.(gz|zip))*$`
 )
 
 var reFN *regexp.Regexp

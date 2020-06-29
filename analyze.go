@@ -59,6 +59,8 @@ type IP struct {
 	Name string
 }
 
+// ParallelSolve is doing the IP to name resolution with a worker set.
+// XXX use Mutex
 func ParallelSolve(ctx *Context, iplist []IP) []IP {
 	verbose("ParallelSolve with %d workers", ctx.jobs)
 
@@ -115,10 +117,6 @@ func GatherRows(ctx *Context, r Feedback) []Entry {
 	)
 
 	ipslen := len(r.Records)
-
-	if fNoResolv {
-		ctx.r = NullResolver{}
-	}
 
 	verbose("Resolving all %d IPs", ipslen)
 	iplist = make([]IP, ipslen)
