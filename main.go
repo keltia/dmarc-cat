@@ -102,8 +102,6 @@ func SelectInput(file string) (io.ReadCloser, error) {
 }
 
 func realmain(args []string) error {
-	flag.Parse()
-
 	ctx, err := Setup(args)
 	if ctx == nil {
 		return errors.Wrap(err, "realmain")
@@ -142,7 +140,6 @@ func realmain(args []string) error {
 }
 
 func main() {
-	// Parse CLI
 	flag.Parse()
 
 	if err := realmain(flag.Args()); err != nil {
