@@ -19,11 +19,12 @@ func TestCheckFilename(t *testing.T) {
 		{"example.com!keltia.net!1538604008!1538690408.xml.gz", true},
 		{"example.com!keltia.net!1538604008!1538690408.xml.gz", true},
 		{"example.com!keltia.net!1538604008!1538690408.xml", true},
+		{"example.com!keltia.net!1538604008!1538690408!666.xml", true},
 		{"google.com!keltia.net!1538438400!1538524799.zip", true},
 	}
 	for _, e := range td {
 		res := checkFilename(e.In)
-		assert.Equal(t, res, e.Out)
+		assert.Equal(t, e.Out, res, e.In)
 	}
 }
 
