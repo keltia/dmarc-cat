@@ -84,6 +84,7 @@ func ParallelSolve(ctx *Context, iplist []IP) []IP {
 
 			for e := range queue {
 				ips, err := ctx.r.LookupAddr(e.IP)
+				debug("ips=%#v", ips)
 				if err != nil {
 					name = e.IP
 				} else {
@@ -105,6 +106,7 @@ func ParallelSolve(ctx *Context, iplist []IP) []IP {
 	close(queue)
 	wg.Wait()
 
+	debug("resolved=%#v", resolved)
 	return resolved
 }
 
