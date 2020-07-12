@@ -93,6 +93,7 @@ func ParallelSolve(ctx *Context, iplist []IP) []IP {
 
 				lock.Lock()
 				resolved[ind].Name = name
+				ind++
 				lock.Unlock()
 				debug("w%d - ip=%s - name=%s", n, e.IP, name)
 			}
