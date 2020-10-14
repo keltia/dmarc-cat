@@ -2,7 +2,7 @@
 
 ## Status
 
-[![GitHub release](https://img.shields.io/github/releases/keltia/dmarc-cat.svg)](https://github.com/keltia/dmarc-cat/releases)
+[![GitHub release](https://img.shields.io/github/release/keltia/dmarc-cat.svg)](https://github.com/keltia/dmarc-cat/releases/)
 [![GitHub issues](https://img.shields.io/github/issues/keltia/dmarc-cat.svg)](https://github.com/keltia/dmarc-cat/issues)
 [![Go Version](https://img.shields.io/badge/go-1.10-blue.svg)](https://golang.org/dl/)
 [![Build Status](https://travis-ci.org/keltia/dmarc-cat.svg?branch=master)](https://travis-ci.org/keltia/dmarc-cat)
