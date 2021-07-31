@@ -2,14 +2,18 @@
 
 ## Status
 
-[![GitHub release](https://img.shields.io/github/release/keltia/dmarc-cat.svg)](https://github.com/keltia/dmarc-cat/releases)
+[![GitHub release](https://img.shields.io/github/release/keltia/dmarc-cat.svg)](https://github.com/keltia/dmarc-cat/releases/)
 [![GitHub issues](https://img.shields.io/github/issues/keltia/dmarc-cat.svg)](https://github.com/keltia/dmarc-cat/issues)
 [![Go Version](https://img.shields.io/badge/go-1.10-blue.svg)](https://golang.org/dl/)
 [![Build Status](https://travis-ci.org/keltia/dmarc-cat.svg?branch=master)](https://travis-ci.org/keltia/dmarc-cat)
 [![GoDoc](http://godoc.org/github.com/keltia/dmarc-cat?status.svg)](http://godoc.org/github.com/keltia/dmarc-cat)
-[![SemVer](http://img.shields.io/SemVer/2.0.0.png)](https://semver.org/spec/v2.0.0.html)
-[![License](https://img.shields.io/pypi/l/Django.svg)](https://opensource.org/licenses/BSD-2-Clause)
+[![SemVer](https://img.shields.io/badge/semver-2.0.0-blue)](https://semver.org/spec/v2.0.0.html)
+[![License](https://img.shields.io/badge/License-BSD-blue)](https://opensource.org/licenses/BSD-2-Clause)
 [![Go Report Card](https://goreportcard.com/badge/github.com/keltia/dmarc-cat)](https://goreportcard.com/report/github.com/keltia/dmarc-cat)
+
+## Summary
+
+`dmarc-cat` is a small command-line utility to analyze and display in a usable manner the content of the DMARC XML reports sent by the various email providers around the globe.
 
 ## Installation
 
@@ -52,6 +56,19 @@ IP            Count   From       RFrom      RDKIM   RSPF
 88.191.250.24 1       keltia.net keltia.net neutral pass
 ```
 
+## Columns
+
+The full XML grammar is available [here](https://tools.ietf.org/html/rfc7489#appendix-C)
+
+The report has several columns:
+
+- `IP` is matching IP address
+- `Count` is the number of times this IP was present
+- `From` is the `From:` header value
+- `RFrom` is the envelope `From` value
+- `RDKIM` is the result from DKIM checking
+- `RSPF` is the result from SPF checking
+
 ## Tests
 
 Getting close to 90% coverage.
@@ -59,6 +76,12 @@ Getting close to 90% coverage.
 ## License
 
 This is released under the BSD 2-Clause license.  See `LICENSE.md`.
+
+## References
+
+- [DMARC](https://dmarc.org/)
+- [SPF](http://www.rfc-editor.org/info/rfc7208)
+- [DKIM](http://www.rfc-editor.org/info/rfc6376)
 
 ## Contributing
 

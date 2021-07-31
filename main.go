@@ -17,7 +17,7 @@ var (
 	// MyName is the application
 	MyName = filepath.Base(os.Args[0])
 	// MyVersion is our version
-	MyVersion = "0.14.0,parallel"
+	MyVersion = "0.14.1,parallel"
 	// Author should be obvious
 	Author = "Ollivier Robert"
 
@@ -102,8 +102,6 @@ func SelectInput(file string) (io.ReadCloser, error) {
 }
 
 func realmain(args []string) error {
-	flag.Parse()
-
 	ctx, err := Setup(args)
 	if ctx == nil {
 		return errors.Wrap(err, "realmain")
@@ -142,7 +140,6 @@ func realmain(args []string) error {
 }
 
 func main() {
-	// Parse CLI
 	flag.Parse()
 
 	if err := realmain(flag.Args()); err != nil {
