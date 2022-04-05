@@ -17,6 +17,9 @@ all: ${BIN}
 ${BIN}: ${SRCS}
 	${GO} build -o ${BIN} ${OPTS} .
 
+windows: ${SRCS}
+	${GO} build -o ${BIN}.exe ${OPTS} .
+
 test:
 	${GO} test -v .
 
