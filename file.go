@@ -99,6 +99,7 @@ func HandleSingleFile(ctx *Context, r io.ReadCloser, typ int) (string, error) {
 	var report Feedback
 
 	if err := xml.Unmarshal(body, &report); err != nil {
+		debug("%d %s", typ, fType)
 		return "", errors.Wrap(err, "unmarshall")
 	}
 
