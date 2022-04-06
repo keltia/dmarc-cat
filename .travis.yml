@@ -21,4 +21,5 @@ before_install:
 - sudo apt-get install -qq libgpgme11 libgpgme11-dev libassuan-dev libassuan0 libgpg-error0 gnupg2
 script:
   - make
+  - make windows
   - make test
