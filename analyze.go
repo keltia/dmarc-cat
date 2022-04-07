@@ -178,7 +178,7 @@ func Analyze(ctx *Context, r Feedback) (string, error) {
 	}
 
 	// Header
-	t := template.Must(template.New("r").Parse(string(reportTmpl)))
+	t := template.Must(template.New("r").Parse(reportTmpl))
 	err := t.ExecuteTemplate(&buf, "r", tmplvars)
 	if err != nil {
 		return "", errors.Wrapf(err, "error in template 'r'")

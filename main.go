@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/keltia/archive"
 	"github.com/pkg/errors"
@@ -17,7 +18,7 @@ var (
 	// MyName is the application
 	MyName = filepath.Base(os.Args[0])
 	// MyVersion is our version
-	MyVersion = "0.14.1,parallel"
+	MyVersion = "0.15.0,parallel"
 	// Author should be obvious
 	Author = "Ollivier Robert"
 
@@ -114,9 +115,9 @@ func realmain(args []string) error {
 
 	verbose("Analyzing %s", file)
 
-	if filepath.Ext(file) == ".zip" ||
-		filepath.Ext(file) == ".ZIP" {
+	var fType = filepath.Ext(file)
 
+	if strings.ToLower(fType) == ".zip" {
 		txt, err = HandleZipFile(ctx, file)
 		if err != nil {
 			return errors.Wrapf(err, "file %s:", file)

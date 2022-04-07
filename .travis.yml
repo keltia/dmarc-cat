@@ -3,7 +3,8 @@ arch:
   - amd64
   - ppc64le
 go:
-- "1.12.x"
+- "1.15.x"
+- "1.18.x"
 - master
 matrix:
   allow_failures:
