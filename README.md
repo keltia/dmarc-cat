@@ -25,6 +25,8 @@ is enough to fetch, build and install.  On some systems you may need to add some
 
     CGO_CFLAGS="-I/usr/local/include" CGO_LDFLAGS="-L/usr/local/lib" go get ...
 
+on Windows systems, GPG support is disabled in the `archive` module so you don't need to compile any non-Go code and the above `go get` command should directly in a Powershell window.
+
 ## Dependencies
 
 Aside from the standard library, I use `github.com/intel/tfortools` to generate tables.
@@ -39,8 +41,21 @@ If you use Go modules, it should all work automatically.
 
 SYNOPSIS
 ```
-dmarc-cat -hvD <zipfile|xmlfile>
+dmarc-cat -hvDN [-j N] [-t type] [-S sort] [-version] <zipfile|xmlfile>
 
+Usage of ./dmarc-cat:
+  -D	Debug mode
+  -N	Do not resolve IPs
+  -S string
+    	Sort results (default "\"Count\" \"dsc\"")
+  -j int
+    	Parallel jobs (default 8)
+  -t string
+    	File type for stdin mode
+  -v	Verbose mode
+  -version
+    	Display version
+    	
 Example:
 
 $ dmarc-cat /tmp/yahoo.com\!keltia.net\!1518912000\!1518998399.xml
@@ -69,6 +84,10 @@ The report has several columns:
 - `RDKIM` is the result from DKIM checking
 - `RSPF` is the result from SPF checking
 
+## Supported formats
+
+The file sent by MTAs can differ in format, some providers send zip files with both csv and XML files, some directly send compressed XML files.  The `archive` module should support all these, please open an issue if not.
+
 ## Tests
 
 Getting close to 90% coverage.
@@ -82,6 +101,7 @@ This is released under the BSD 2-Clause license.  See `LICENSE.md`.
 - [DMARC](https://dmarc.org/)
 - [SPF](http://www.rfc-editor.org/info/rfc7208)
 - [DKIM](http://www.rfc-editor.org/info/rfc6376)
+- [archive](https://github.com/keltia/archive/)
 
 ## Contributing
 
