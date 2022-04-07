@@ -5,6 +5,9 @@ test_task:
   modules_cache:
     fingerprint_script: cat go.sum
     folder: $GOPATH/pkg/mod
+  env:
+    CGO_CFLAGS: -I/usr/local/include
+    CGO_LDFLAGS: -L/usr/local/lib
   install_script: pkg install -y gpgme git go
   get_script: go get ./...
   build_script: go build ./...
