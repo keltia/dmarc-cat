@@ -13,7 +13,7 @@
 
 ## Summary
 
-`dmarc-cat` is a small command-line utility to analyze and display in a usable manner the content of the DMARC XML reports sent by the various email providers around the globe.
+`dmarc-cat` is a small command-line utility to analyze and display in a usable manner the content of the DMARC XML reports sent by the various email providers around the globe.  Should work properly on UNIX (FreeBSD, Linux, etc.) and now Windows systems.
 
 ## Installation
 
@@ -25,7 +25,7 @@ is enough to fetch, build and install.  On some systems you may need to add some
 
     CGO_CFLAGS="-I/usr/local/include" CGO_LDFLAGS="-L/usr/local/lib" go get ...
 
-on Windows systems, GPG support is disabled in the `archive` module so you don't need to compile any non-Go code and the above `go get` command should directly in a Powershell window.
+On Windows systems, GPG support is disabled in the `archive` module so you don't need to compile any non-Go code and the above `go get` command should work directly in a Powershell window.
 
 ## Dependencies
 
