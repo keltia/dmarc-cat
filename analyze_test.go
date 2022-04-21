@@ -10,16 +10,17 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAnalyze(t *testing.T) {
+func TestAnalyze_Empty(t *testing.T) {
 	ctx := &Context{NullResolver{}, 1}
-	s, err := Analyze(ctx, Feedback{})
+	r := make(Feedback, 1)
+	s, err := Analyze(ctx, r)
 	assert.Error(t, err)
 	assert.Empty(t, s)
 }
 
 func TestGatherRows_Empty(t *testing.T) {
 	ctx := &Context{NullResolver{}, 1}
-	r := GatherRows(ctx, Feedback{})
+	r := GatherRows(ctx, Report{})
 	assert.Empty(t, r)
 }
 
@@ -38,7 +39,7 @@ func TestGatherRows_Good(t *testing.T) {
 	err = xml.Unmarshal(body, &report)
 	require.NoError(t, err)
 
-	rows := GatherRows(ctx, report)
+	rows := GatherRows(ctx, report[0])
 	assert.Equal(t, 1, len(rows))
 }
 
