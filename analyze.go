@@ -112,7 +112,7 @@ func ParallelSolve(ctx *Context, iplist []IP) []IP {
 }
 
 // GatherRows extracts all IP and return the rows
-func GatherRows(ctx *Context, r Feedback) []Entry {
+func GatherRows(ctx *Context, r Report) []Entry {
 	var (
 		rows    []Entry
 		iplist  []IP
@@ -151,28 +151,32 @@ func GatherRows(ctx *Context, r Feedback) []Entry {
 	return rows
 }
 
+// TODO: fix Analyze to work with multiple Reports.
+
 // Analyze extract and display what we want
+// XXX only analyse the first Report in a feedback.
 func Analyze(ctx *Context, r Feedback) (string, error) {
 	var buf bytes.Buffer
 
+	single := r[0]
 	tmplvars := &headVars{
 		MyName:      MyName,
 		MyVersion:   MyVersion,
 		Jobs:        fmt.Sprintf("%d", fJobs),
 		Author:      Author,
-		Org:         r.Metadata.OrgName,
-		Email:       r.Metadata.Email,
-		DateBegin:   time.Unix(r.Metadata.Date.Begin, 0).String(),
-		DateEnd:     time.Unix(r.Metadata.Date.End, 0).String(),
-		Domain:      r.Policy.Domain,
-		Disposition: r.Policy.P,
-		DKIM:        r.Policy.ADKIM,
-		SPF:         r.Policy.ASPF,
-		Pct:         r.Policy.Pct,
-		Count:       len(r.Records),
+		Org:         single.Metadata.OrgName,
+		Email:       single.Metadata.Email,
+		DateBegin:   time.Unix(single.Metadata.Date.Begin, 0).String(),
+		DateEnd:     time.Unix(single.Metadata.Date.End, 0).String(),
+		Domain:      single.Policy.Domain,
+		Disposition: single.Policy.P,
+		DKIM:        single.Policy.ADKIM,
+		SPF:         single.Policy.ASPF,
+		Pct:         single.Policy.Pct,
+		Count:       len(single.Records),
 	}
 
-	rows := GatherRows(ctx, r)
+	rows := GatherRows(ctx, single)
 	if len(rows) == 0 {
 		return "", fmt.Errorf("empty report")
 	}
