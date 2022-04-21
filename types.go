@@ -81,10 +81,13 @@ type Record struct {
 	AuthResults AuthResults `xml:"auth_results"`
 }
 
-// Feedback the report itself
-type Feedback struct {
+// Report the report itself
+type Report struct {
 	Version  float32         `xml:"version"`
 	Metadata ReportMetadata  `xml:"report_metadata"`
 	Policy   PolicyPublished `xml:"policy_published"`
 	Records  []Record        `xml:"record"`
 }
+
+// An actual file can have multiple reports
+type Feedback []Report
