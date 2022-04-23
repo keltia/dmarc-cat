@@ -30,7 +30,7 @@ On Windows systems, GPG support is disabled in the `archive` module so you don't
 ### Linux
 
 #### Arch Linux
-[![dmarc-cat-git on AUR](https://img.shields.io/aur/version/dmarc-cat?label=dmarc-cat-git)](https://aur.archlinux.org/packages/dmarc-cat-git/)
+[![dmarc-cat-git on AUR](https://img.shields.io/aur/version/dmarc-cat-git?label=dmarc-cat)](https://aur.archlinux.org/packages/dmarc-cat-git/)
 
 Dmarc-cat is available on the [AUR](https://wiki.archlinux.org/index.php/Arch_User_Repository):
 - [dmarc-cat-git](https://aur.archlinux.org/packages/dmarc-cat/) (git package)
