@@ -27,6 +27,21 @@ is enough to fetch, build and install.  On some systems you may need to add some
 
 On Windows systems, GPG support is disabled in the `archive` module so you don't need to compile any non-Go code and the above `go get` command should work directly in a Powershell window.
 
+### Linux
+
+#### Arch Linux
+[![dmarc-cat-git on AUR](https://img.shields.io/aur/version/dmarc-cat?label=dmarc-cat-git)](https://aur.archlinux.org/packages/dmarc-cat-git/)
+
+Dmarc-cat is available on the [AUR](https://wiki.archlinux.org/index.php/Arch_User_Repository):
+- [dmarc-cat-git](https://aur.archlinux.org/packages/dmarc-cat/) (git package)
+
+You can install it using your [AUR helper](https://wiki.archlinux.org/index.php/AUR_helpers) of choice.
+
+Example:
+```console
+$ yay -Sy dmarc-cat-git
+```
+
 ## Dependencies
 
 Aside from the standard library, I use `github.com/intel/tfortools` to generate tables.
