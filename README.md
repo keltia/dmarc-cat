@@ -30,16 +30,18 @@ On Windows systems, GPG support is disabled in the `archive` module so you don't
 ### Linux
 
 #### Arch Linux
-[![dmarc-cat-git on AUR](https://img.shields.io/aur/version/dmarc-cat-git?label=dmarc-cat)](https://aur.archlinux.org/packages/dmarc-cat-git/)
+[![dmarc-cat on AUR](https://img.shields.io/aur/version/dmarc-cat?label=dmarc-cat)](https://aur.archlinux.org/packages/dmarc-cat/)
+[![dmarc-cat-git on AUR](https://img.shields.io/aur/version/dmarc-cat-git?label=dmarc-cat-git)](https://aur.archlinux.org/packages/dmarc-cat-git/)
 
 Dmarc-cat is available on the [AUR](https://wiki.archlinux.org/index.php/Arch_User_Repository):
-- [dmarc-cat-git](https://aur.archlinux.org/packages/dmarc-cat/) (git package)
+- [dmarc-cat](https://aur.archlinux.org/packages/dmarc-cat/) (release package)
+- [dmarc-cat-git](https://aur.archlinux.org/packages/dmarc-cat-git/) (git package)
 
 You can install it using your [AUR helper](https://wiki.archlinux.org/index.php/AUR_helpers) of choice.
 
 Example:
 ```console
-$ yay -Sy dmarc-cat-git
+$ yay -Sy dmarc-cat
 ```
 
 ## Dependencies
