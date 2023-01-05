@@ -19,11 +19,12 @@
 
 As with many Go utilities, a simple
 
-    go get github.com/keltia/dmarc-cat
+    go install github.com/keltia/dmarc-cat@latest
 
-is enough to fetch, build and install.  On some systems you may need to add some environment variables to enable the Go and C compilers to find the `gpgme` include files and libraries.
+is enough to fetch, build and install. On some systems you may need install the `gpgme` library's development package and to add some environment variables to enable the Go and C compilers to find the `gpgme` include files and libraries.
 
-    CGO_CFLAGS="-I/usr/local/include" CGO_LDFLAGS="-L/usr/local/lib" go get ...
+    sudo pacman -S gpgme # or sudo apt install -y gpgme-dev
+    CGO_CFLAGS="-I/usr/local/include" CGO_LDFLAGS="-L/usr/local/lib" go install ...
 
 On Windows systems, GPG support is disabled in the `archive` module so you don't need to compile any non-Go code and the above `go get` command should work directly in a Powershell window.
 
